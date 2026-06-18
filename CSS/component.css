@@ -1,0 +1,155 @@
+
+#station-leds-container {
+    width: 100%;
+    padding: 0 10px;
+}
+#platform-leds-container-1{
+    width: 100%;
+    padding: 0 10px;
+}
+#platform-leds-container-2 {
+    width: 100%;
+    padding: 0 10px;
+}
+#platform-doors-container-1{
+    width: 100%;
+    padding: 0 10px;
+}
+#platform-doors-container-2{
+    width: 100%;
+    padding: 0 10px;
+}
+.led-item {
+    display: flex;
+    align-items: center;
+    
+}
+
+.led-name {
+    margin-right: 10px;
+    text-align: left;
+}
+
+
+
+.led {
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    background-color: gray;
+    border: 2px solid black;
+    text-align: right; 
+}
+.led.on {
+    background-color: rgb(0, 255, 0);
+}
+
+.led.off {
+    background-color: gray;
+}
+.arlam_led {
+    width: 15px;
+    height: 15px;
+    border-radius: 50%;
+    background-color: green;
+    border: 2px solid black;
+    text-align: right; 
+}
+.arlam_led.on {
+    background-color: red;
+}
+
+.arlam_led.off {
+    background-color: green;
+}
+
+.led_label {
+    display: flex;
+}
+
+.door {
+    position: absolute;
+    width: 50%;
+    height: 80%;
+    background-color: #138b1d;
+    border: 1px solid #654321;
+    transition: transform 300ms ease-in-out;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: black;
+    font-size: 15px;
+    text-align: center;
+}
+.door-item {
+    margin-left:2px;
+    height: 150px;
+    width: 80px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    position: relative;
+    overflow: hidden;
+}
+
+.door-name {
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 10px;
+    text-align: left;
+}
+
+.left-door {
+    left: 0;
+    transform-origin: left center;
+}
+
+.right-door {
+    right: 0;
+    transform-origin: right center;
+}
+
+.door.open.left-door {
+    transform: translateX(-92%);
+}
+
+.door.open.right-door {
+    transform: translateX(92%);
+}
+.door.half-open.left-door {
+    transform: translateX(-50%);
+}
+
+.door.half-open.right-door {
+    transform: translateX(50%);
+}
+
+.single-door {
+    position: absolute;
+    width: 100%;
+    height: 80%;
+    background-color: #196b80;
+    border: 2px solid #654321;
+    transition: transform 300ms ease-in-out;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: black;
+    font-size: 15px;
+    text-align: center;
+    left: 0;
+}
+
+.single-door.open {
+    transform: translateX(92%);
+}
+
+.even-row {
+    background-color: #f2f2f2; /* Light gray */
+}
+
+.odd-row {
+    background-color: #ffffff; /* White */
+}

@@ -1,0 +1,356 @@
+/*
+ * Base structure
+ */
+
+/* Move down content because we have a fixed navbar that is 50px tall */
+body {
+  padding-top: 50px;
+ 
+}
+
+
+/*
+ * Global add-ons
+ */
+
+.sub-header {
+  padding-bottom: 10px;
+  border-bottom: 1px solid #eee;
+}
+
+/*
+ * Top navigation
+ * Hide default border to remove 1px line.
+ */
+.navbar-fixed-top {
+  border-bottom: 1px solid #428bca;
+
+}
+
+/*
+ * Sidebar
+ */
+
+/* Hide for mobile, show later */
+.sidebar {
+  display: none;
+}
+@media (min-width: 768px) {
+  .sidebar {
+    position: fixed;
+    top: 51px;
+    bottom: 0;
+    left: 0;
+    z-index: 1000;
+    display: block;
+    padding: 20px;
+    overflow-x: hidden;
+    overflow-y: auto; /* Scrollable contents if viewport is shorter than content. */
+    background-color: #f5f5f5;
+    border-right: 1px solid #eee;
+  }
+}
+
+/* Sidebar navigation */
+@media (min-width: 768px) {
+.nav-sidebar {
+  margin-right: -21px; /* 20px padding + 1px border */
+  margin-bottom: 20px;
+  margin-left: -20px;
+}
+.nav-sidebar > li > a {
+  padding-right: 20px;
+  padding-left: 20px;
+}
+.nav-sidebar > .active > a,
+.nav-sidebar > .active > a:hover,
+.nav-sidebar > .active > a:focus {
+  color: #fff;
+  background-color: #428bca;
+}
+}
+
+/*
+ * Main content
+ */
+
+.main {
+  padding: 20px;
+}
+@media (min-width: 768px) {
+  .main {
+    padding-right: 40px;
+    padding-left: 40px;
+  }
+}
+.main .page-header {
+  margin-top: 0;
+}
+
+
+/*
+ * Placeholder dashboard ideas
+ */
+
+.placeholders {
+  margin-bottom: 30px;
+  text-align: center;
+}
+.placeholders h4 {
+  margin-bottom: 0;
+}
+.placeholder {
+  margin-bottom: 20px;
+}
+.placeholder img {
+  display: inline-block;
+  border-radius: 50%;
+}
+
+.table-responsive {
+    clear: both;
+}
+
+/* styles for dynamic elements (variables updated by AJAX, buttons etc) */
+div.DynVar {position: absolute; font-size: 20px; font-weight:bold; color: #FFFFFF}
+@media (min-width: 768px) {
+.navbar-brand{
+	margin-left: 500px;
+	font-size: 20pt;
+	font-weight: bold;
+}
+}
+/**
+ * Boxes status
+ */
+.pteBoxHigh {
+	background-color: #0070C0;
+	color: white;
+}
+.pteBoxLow {
+	background-color: white;
+	color: black;
+}
+.pteBoxError {
+	background-color: red;
+	color: white;
+}
+
+/**
+ * Container of div boxes with "inline-block" content layout
+ */
+.pteBoxContainer > div {
+
+	vertical-align: top;
+
+}
+/**
+ * Grid of data
+ */
+.pteValueSet {
+width: 300px;
+	float: left;
+}
+.pteValueSet > div {
+width: 300px;
+	padding: 1px;
+	border: solid 1px #c0c0c0a8;
+	overflow: auto;
+	display: inline-block  ;
+	vertical-align: top;
+}
+
+.pteValueBox, .pteBinaryBox, .pteBinarySet > div {
+	width: 300px;
+	padding: 1px;
+	margin: 2px;
+	border: solid 1px #c0c0c0;
+	display: inline-block;
+	vertical-align: top;
+	float: left;
+
+}
+.pteBinaryBox, .pteBinarySet > div {
+	width: 190px;
+
+}
+.pteBinarySet, .pteIndicatorSet {
+	width: 80%;
+	float: left;
+}
+.pteValueBox > span, .pteValueSet > div > span {
+	float: left;
+}
+.pteValueBox > span:last-child, .pteValueSet > div > span:last-child {
+	float: right;
+	color: black;
+}
+/**
+ * Page content
+ */
+ 
+ /**
+ * Page content
+ */
+
+fieldset {
+
+    display: inline-block;
+    margin-inline-start: 2px;
+    margin-inline-end: 2px;
+    padding-block-start: 0.35em;
+    padding-inline-start: 0.75em;
+    padding-inline-end: 0.75em;
+    padding-block-end: 0.625em;
+    min-inline-size: min-content;
+    border-width: 3px;
+    border-style: groove;
+    border-color: threedface;
+    border-image: initial
+	margin: 4px 4px 30px 4px;
+	
+	resize:both; 
+}  
+legend {
+	
+	display: inline-block;
+	width: auto;
+    padding-inline-start: 2px;
+    padding-inline-end: 2px;
+    border-width: initial;
+    border-style: none;
+    border-color: initial;
+    border-image: initial;
+    margin-bottom: 2px;
+}
+
+/**
+ * Table
+ */
+.pteTable {
+	width: 99%;
+	color: black;
+	border-collapse: collapse;
+	border-bottom: solid 3px;
+	margin-left: 5px;
+
+}
+.pteTable th {
+	
+	font-size: 10pt;
+	font-weight: normal;
+	border: solid 1px black;
+	color: black;
+	background-color: #CBCBCB;
+	text-align: left;
+}
+.pteTable td {
+
+	padding: 4px;
+	font-size: 8pt;
+	border: solid 1px black;
+	color: black;
+    
+	white-space: nowrap
+}
+.pteSortBy {
+	text-align: right;
+}
+
+/**
+ * Table with divs
+ */
+.pteKeyValTable {
+	display: table;
+}
+.pteKeyValTable > div {
+	display: table-row;
+}
+.pteKeyValTable > div > * {
+	display: table-cell;
+}
+/**
+ * Status container with buttons
+ */
+.pteButtonGrid input {
+	margin: 8px 1px 5px 10px;
+}
+
+/**
+ * Container for a main component (ex: log file content) with margins
+ */
+.pteLogsContainer {
+	height: 100%;
+	margin-top: 1%;
+	padding: 0px 12px 0px 12px;
+}
+.pteLogsContainer object, .pteLogsContainer iframe, .pteLogs {
+	background-color: gray;
+	width: 100%;
+}
+
+.pteFooter {
+	text-align: right;
+	bottom: 0;
+	margin-top: 1%;
+	width: 100%;
+	height: 12%;
+}
+
+
+.progress, .progressCM, .progressCyber, .progressWeb  { position:relative; width: 500px; height: 30px;border: 1px solid #fff; padding: 1px; border-radius: 3px; }
+
+.upgradeBar { background-color: #00BB00; width: 0%; height: 30px; border-color:#00FF;border-radius: 3px;border: 1px solid #fff; }
+.cyberuploadBar{ background-color: #00BB00; width: 0%; height: 30px; border-color:#00FF;border-radius: 3px; }
+.webuploadBar { background-color: #00BB00; width: 0%; height: 30px; border-color:#00FF;border-radius: 3px; }
+.uploadBar{ background-color: #00BB00; width: 0%; height: 40px; border-color:#00FF;border-radius: 3px; }
+.uploadPercent, .upgradePercent, .cyberuploadPercent, .webuploadPercent { position: absolute; display: inline-block; top: 3px; left: 48%;color:#a94442 }
+
+.interact, .interactCM{ display: none; }
+.interactCyber, .interactWeb { display: none; }
+.msg, .msgCM, .msgCyber, .msgWeb { color:#a94442 }
+
+.curvedEdges { border:10px solid silver;border-radius:10px;width:20px;height:20px; }
+ table.curvedEdges td, table.curvedEdges th { border-bottom:1px dotted black;padding:5px; }
+ 
+.textInput {   
+	text-align: right;
+    border-style: none;
+    background-color: white;
+	size:20px;
+
+
+	}
+	
+/**loginin css*/
+
+
+.form-signin {
+  max-width: 330px;
+  padding: 15px;
+  margin: 0 auto;
+}
+.form-signin .form-signin-heading,
+.form-signin .checkbox {
+  margin-bottom: 10px;
+}
+.form-signin .checkbox {
+  font-weight: normal;
+}
+.form-signin .form-control {
+  position: relative;
+  height: auto;
+  -webkit-box-sizing: border-box;
+     -moz-box-sizing: border-box;
+          box-sizing: border-box;
+  padding: 10px;
+  font-size: 16px;
+}
+.form-signin .form-control:focus {
+  z-index: 2;
+}
+
+@media (min-width: 768px) {
+ .connectOn {margin-left: 150px;margin-top: 15px;width:auto; font-weight: bold;font-size:20px; color:#00ff00;background-color:transparent;border:0;outline:none}      
+ .connectOff {margin-left: 150px;margin-top: 15px;width:auto; font-weight: bold;font-size:20px; color:#ff0000;background-color:transparent;border:0;outline:none} 
+}
