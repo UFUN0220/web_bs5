@@ -1,11 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
     <head>
-        <!-- Bootstrap core CSS -->
-        <link href="css/bootstrap.min.css" rel="stylesheet">
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
 
-        <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-        <link href="css/ie10-viewport-bug-workaround.css" rel="stylesheet">
+        <!-- Bootstrap 5 core CSS -->
+        <link href="css/bootstrap.min.css" rel="stylesheet">
 
         <!-- Custom styles for this template -->
         <link href="css/dashboard.css" rel="stylesheet">
@@ -18,50 +18,69 @@
     </head>
 
     <body>
-        <nav class="navbar navbar-default navbar-fixed-top">
-            <div class="navbar-header">
-                <a href="http://www.Wabtec.com"><img border="0" src="img/faiveley.gif" align="left" width="151" height="45"></a>
-                <a data-localize="NavHeadbar.Title" class="navbar-brand"> Wabtec MMS System </a>
-                <span align="right"><input type='text' id="connectStatus" disabled='disabled' size='4px' style="border-style:none" value=''/></span>
-            </div>
-            <div id="navbar" class="navbar-collapse collapse">
-                <ul class="nav navbar-nav navbar-right">
-                    <li class="dropdown">
-                        <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">
-                            <span><input type='text' id="username" disabled='disabled' size='6px' style="border-style:none;font-size=6px;font-weight:bold" value=''/></span>
-                            <img border="0" src="img/user.svg" align="left" width="60" height="30"> <span class="caret"></span>
+        <!-- Top header bar: light background #f8f9fa -->
+        <nav class="navbar navbar-expand-sm fixed-top" style="background-color: #f8f9fa; border-bottom: 3px solid #428bca;">
+            <div class="container-fluid">
+                <!-- Left: Faiveley Transport logo -->
+                <a class="navbar-brand" href="http://www.Wabtec.com">
+                    <img src="img/faiveley.gif" alt="Faiveley Transport" width="151" height="45">
+                </a>
+
+                <!-- Center: Title (positioned absolutely for true centering) -->
+                <span class="navbar-brand d-none d-sm-block position-absolute start-50 translate-middle-x" style="font-size: 20pt; font-weight: bold; color: #555;">
+                    Wabtec MMS System
+                </span>
+
+                <!-- Spacer to push right items -->
+                <div class="flex-grow-1 d-sm-none"></div>
+
+                <!-- Connection status -->
+                <span class="d-none d-sm-flex align-items-center me-2">
+                    <input type='text' id="connectStatus" disabled='disabled' size='4px' style="border-style:none; background: transparent;" value=''/>
+                </span>
+
+                <!-- Right: User avatar dropdown -->
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item dropdown">
+                        <a href="#" class="nav-link dropdown-toggle d-flex align-items-center" data-bs-toggle="dropdown" role="button" aria-expanded="false" style="padding: 0;">
+                            <span class="me-1 d-none d-sm-inline"><input type='text' id="username" disabled='disabled' size='6px' style="border-style:none; background: transparent; font-weight:bold; text-align:right;" value=''/></span>
+                            <span style="display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; background-color: #6c757d; border-radius: 50%; border: 2px solid #ddd;">
+                                <svg width="22" height="22" viewBox="0 0 24 24" fill="white"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v1.2c0 .66.54 1.2 1.2 1.2h16.8c.66 0 1.2-.54 1.2-1.2v-1.2c0-3.2-6.4-4.8-9.6-4.8z"/></svg>
+                            </span>
                         </a>
-                        <ul class="dropdown-menu">
-                            <li><a data-localize="NavHeadbar.Help" href="Help.htm">Help</a></li>
-                            <li><a data-localize="NavHeadbar.Logout" href="index.htm">Logout</a></li>
+                        <ul class="dropdown-menu dropdown-menu-end">
+                            <li><a data-localize="NavHeadbar.Help" class="dropdown-item" href="Help.htm">Help</a></li>
+                            <li><a data-localize="NavHeadbar.Logout" class="dropdown-item" href="index.htm">Logout</a></li>
                         </ul>
                     </li>
                 </ul>
-            </div><!--/.nav-collapse -->
+            </div>
         </nav>
+
         <div class="container-fluid">
             <div class="row">
+                <!-- Left sidebar: pure white background, blue links -->
                 <div class="col-sm-3 col-md-2 sidebar">
-                    <ul class="nav nav-sidebar">
-                        <!-- <li><a href="Overview.htm">Overview </a></li> -->
-                        <li id="General_View"><a data-localize="NavSidebar.General_View" href="general_view.htm">General View</a></li>
-                        <li id="Network"><a data-localize="NavSidebar.Network" href="alarm_data.htm">Alarm Data</a></li>
-                        <li id="Failure"><a data-localize="NavSidebar.Failure" href="Failure.htm">Failure</a></li>
-                        <li id="Process"><a data-localize="NavSidebar.Process" href="Process.htm">Process Data</a></li>
-                        <li id="System"><a data-localize="NavSidebar.System" href="System.htm">System Information</a></li>
+                    <ul class="nav nav-sidebar flex-column">
+                        <li id="General_View" class="nav-item"><a data-localize="NavSidebar.General_View" class="nav-link sidebar-link" href="general_view.htm">General View</a></li>
+                        <li id="Network" class="nav-item"><a data-localize="NavSidebar.Network" class="nav-link sidebar-link" href="alarm_data.htm">Alarm Data</a></li>
+                        <li id="Failure" class="nav-item"><a data-localize="NavSidebar.Failure" class="nav-link sidebar-link" href="Failure.htm">Failure</a></li>
+                        <li id="Process" class="nav-item"><a data-localize="NavSidebar.Process" class="nav-link sidebar-link" href="Process.htm">Process Data</a></li>
+                        <li id="System" class="nav-item"><a data-localize="NavSidebar.System" class="nav-link sidebar-link" href="System.htm">System Information</a></li>
                     </ul>
-                    <ul class="nav nav-sidebar">
-                        <li id="Parameters"><a data-localize="NavSidebar.Parameters" href="Parameters.htm">Parameters</a></li>
-                        <li id="SystemSetting"><a data-localize="NavSidebar.Setting" href="SystemSetting.htm">System Setting</a></li>
-                        <li id="Users"><a data-localize="NavSidebar.Authorization" href="Users.htm">Authorization</a></li>
+                    <ul class="nav nav-sidebar flex-column">
+                        <li id="Parameters" class="nav-item"><a data-localize="NavSidebar.Parameters" class="nav-link sidebar-link" href="Parameters.htm">Parameters</a></li>
+                        <li id="SystemSetting" class="nav-item"><a data-localize="NavSidebar.Setting" class="nav-link sidebar-link" href="SystemSetting.htm">System Setting</a></li>
+                        <li id="Users" class="nav-item"><a data-localize="NavSidebar.Authorization" class="nav-link sidebar-link" href="Users.htm">Authorization</a></li>
                     </ul>
-                    <ul class="nav nav-sidebar">
-                        <li id="Event"><a data-localize="NavSidebar.Event" href="Event.htm">Event</a></li>
-                        <li id="SystemLog"><a data-localize="NavSidebar.Log" href="SystemLog.htm">System Log</a></li>
-                        <li id="Software"><a data-localize="NavSidebar.Software" href="Software.htm">SoftwareUpgrade</a></li>
+                    <ul class="nav nav-sidebar flex-column">
+                        <li id="Event" class="nav-item"><a data-localize="NavSidebar.Event" class="nav-link sidebar-link" href="Event.htm">Event</a></li>
+                        <li id="SystemLog" class="nav-item"><a data-localize="NavSidebar.Log" class="nav-link sidebar-link" href="SystemLog.htm">System Log</a></li>
+                        <li id="Software" class="nav-item"><a data-localize="NavSidebar.Software" class="nav-link sidebar-link" href="Software.htm">SoftwareUpgrade</a></li>
                     </ul>
                 </div>
-                <div class="col-sm-9 col-sm-offset-3 col-md-10 col-md-offset-2 main">
+                <!-- Right main content area -->
+                <div class="col-sm-9 offset-sm-3 col-md-10 offset-md-2 main">
                     <h3 data-localize="NavSidebar.General_View" class="sub-header">General View</h3>
                     <div id="station-content"></div>
                     <div id="platform-content"></div>
@@ -80,8 +99,7 @@
                     const ledId = $(this).data('led-id');
                     const ledStatus = $(this).data('led-status');
                     updateLedStatusById(ledId, ledStatus);
-                    
-                    // Toggle the status for the next click
+
                     const newStatus = ledStatus === 'on' ? 'off' : 'on';
                     $(this).data('led-status', newStatus);
                 });

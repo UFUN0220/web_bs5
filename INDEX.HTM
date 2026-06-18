@@ -2,88 +2,75 @@
 <html>
   <head>
     <meta charset="utf-8">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <!-- The above 3 meta tags *must* come first in the head; any other head content must come *after* these tags -->
     <meta name="description" content="">
     <meta name="author" content="">
 
+    <title>Wabtec DLCC2 Maintenance Tools</title>
 
-
-
-
- <title>Wabtec DLCC2 Maintenance Tools</title>
-
-     <!-- Bootstrap core CSS -->
+    <!-- Bootstrap 5 core CSS -->
     <link href="css/bootstrap.min.css" rel="stylesheet">
-
-    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-    <link href="css/ie10-viewport-bug-workaround.css" rel="stylesheet">
 
     <!-- Custom styles for this template -->
     <link href="css/dashboard.css" rel="stylesheet">
 
     <style>
      body { padding-top: 40px;  padding-bottom: 40px;  background-color: #eee;}
-	</style>
+    </style>
 
   </head>
 
   <body>
 
       <div class="container">
-      
+
       <form class="form-signin">
-	  <img border="0" src="img/faiveley.gif" align="center-left" width="151" height="45">
-      <br></br>
+      <img border="0" src="img/faiveley.gif" align="center-left" width="151" height="45">
+      <div class="mb-3"></div>
         <label data-localize="Login.UserName" >User Name:</label>
         <input type="name" id="inputName" class="form-control" placeholder="Enter your user name here..." onpropertychange ='user_chk(this);'required  autofocus>
         <label data-localize="Login.Password" >Password:</label>
         <input type="password" id="inputPassword" class="form-control" placeholder="Enter your password here..."  onkeyup='pass_chk(this);' required  autofocus >
         <div class="msg" align="center-left" ></div>
-	    <br></br>
-		<label data-localize="Login.LanguageID"> Language Select:</label>
-		<select id="ddlSomoveLanguage" class="pteSelectInput" onchange="chgLang();">  
-		 <option value="e">Select</option>
-        <option value="en">English</option> 
-        <option value="fr">French</option>  
-        <option value="zh">Chinese</option>    		
-        </select> 
-		<br></br>
-		<br></br>
-		<br></br>		
-    	<div>
-	<!--  <object data="./test.txt" width="300", height="200"></object>-->
-		</div>
-	<Button data-localize="Login.ButtonText" id="btnSend" class="btn btn-lg btn-primary btn-block" type="Button" >Sign in</button>
+        <div class="mb-3"></div>
+        <label data-localize="Login.LanguageID"> Language Select:</label>
+        <select id="ddlSomoveLanguage" class="pteSelectInput" onchange="chgLang();">
+         <option value="e">Select</option>
+          <option value="en">English</option>
+          <option value="fr">French</option>
+          <option value="zh">Chinese</option>
+        </select>
+        <div class="mb-3"></div>
+        <div class="mb-3"></div>
+        <div class="mb-3"></div>
+        <div>
+    <!--  <object data="./test.txt" width="300", height="200"></object>-->
+        </div>
+    <button data-localize="Login.ButtonText" id="btnSend" class="btn btn-lg btn-primary w-100" type="button">Sign in</button>
 
       </form>
 
     </div> <!-- /container -->
-    <!-- Bootstrap core JavaScript
+    <!-- Bootstrap 5 core JavaScript
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
-	<script src="bin/jquery.min.js"></script>
-	<script src="bin/jquery.localize.min.js"></script>
-	<script src="bin/language_cookie.js"></script>		
+    <script src="bin/jquery.min.js"></script>
+    <script src="bin/jquery.localize.min.js"></script>
+    <script src="bin/language_cookie.js"></script>
     <script src="bin/bootstrap.min.js"></script>
-    <!-- Just to make our placeholder images work. Don't actually copy the next line! -->
-    <script src="bin/holder.min.js"></script>
-    <!-- IE10 viewport hack for Surface/desktop Windows 8 bug -->
-    <script src="bin/ie10-viewport-bug-workaround.js"></script>
-	<script src="bin/device.js"></script>	
+    <script src="bin/device.js"></script>
 
 
 
 <script type="text/javascript">
-   
-   
- 
-//  window.onload = RemoveSessionUserID();		
+
+
+
+//  window.onload = RemoveSessionUserID();
  // GetUserAccessLevel();
 
- 	$(window).on('load',function() {
-            RemoveSessionUserID();	
+    $(window).on('load',function() {
+            RemoveSessionUserID();
       //      GetUserAccessLevel();
             ClearUserID();
      });
@@ -91,17 +78,17 @@
 
 function ClearUserID(){
 
- $.ajax({ 
-        type: "POST",  
-        url: 'login.cgi', 
-		contentType: "application/json; charset=utf-8",
-		datatype:'json',
+ $.ajax({
+        type: "POST",
+        url: 'login.cgi',
+        contentType: "application/json; charset=utf-8",
+        datatype:'json',
         data:JSON.stringify({
-		        "u" :"user",
-			    "username" :"null",  
+                "u" :"user",
+                "username" :"null",
                 "password" :"null",
-			}),
-			 success: function (data) { },
+            }),
+             success: function (data) { },
     });
 
 
@@ -114,111 +101,111 @@ function ClearUserID(){
     if(selectedIndex != null) {
         document.getElementById("ddlSomoveLanguage").selectedIndex = selectedIndex;
     }
-	
-	
+
+
  $("#btnSend").click(function(){
- 
- 
- 
-			var username = document.getElementById("inputName").value;
-			var password = document.getElementById("inputPassword").value;
-			var ajaxobj; 
-//if(!pass_chk(password)) return	
-		$.ajax({  
-        type: "POST",  
-        url: 'login.cgi', 
-        contentType: "application/json; charset=utf-8",  
+
+
+
+            var username = document.getElementById("inputName").value;
+            var password = document.getElementById("inputPassword").value;
+            var ajaxobj;
+//if(!pass_chk(password)) return
+        $.ajax({
+        type: "POST",
+        url: 'login.cgi',
+        contentType: "application/json; charset=utf-8",
         data:JSON.stringify({
-		        "u" :"user",
-			    "username" :username,  
+                "u" :"user",
+                "username" :username,
                 "password" : password,
-			}),
-        dataType: 'json',  
-        success: function (data) {  
+            }),
+        dataType: 'json',
+        success: function (data) {
          if (data["LoginActiveFlag"] == 1)
-		 {
-		  if(data["IsPasswdDefault"] == 1)
+         {
+          if(data["IsPasswdDefault"] == 1)
           {
             alert("User Password is still default, please change it as soon as possible.");
           }
-		  	
-		  globalData.setUserInfo(data["UserGroupID"],data["LoginActiveFlag"],data["AccessLevel"],data["AccessLevelTempMaint"],data["AccessLevelTempService"],data["AccessLevelTempEng"],data["WebNotActiveTime"],data["LoginMaxCounter"])
-		  window.location.href = "general_view.htm";
-		  
-		 }
-		 else if (data["LoginCounter"] >= data["LoginMaxCounter"])
-		 {
-		  
-		  	
-		  alert(" Your failed login times has been up to max. login times and forbidden to login");
-		  document.getElementById("inputName").disabled = true;
-		  document.getElementById("inputPassword").disabled = true;
-		  
-		 }
-		else
-		{
-			alert("username or password error");
-			window.location.href= "index.htm";
-			
-		}	
-		 
-        },  
-        error: function (message) {  
-            $("#request-process-patent").html("data update fail");  
-        }  
-    }); 
-	
-});	
-	 
+
+          globalData.setUserInfo(data["UserGroupID"],data["LoginActiveFlag"],data["AccessLevel"],data["AccessLevelTempMaint"],data["AccessLevelTempService"],data["AccessLevelTempEng"],data["WebNotActiveTime"],data["LoginMaxCounter"])
+          window.location.href = "general_view.htm";
+
+         }
+         else if (data["LoginCounter"] >= data["LoginMaxCounter"])
+         {
+
+
+          alert(" Your failed login times has been up to max. login times and forbidden to login");
+          document.getElementById("inputName").disabled = true;
+          document.getElementById("inputPassword").disabled = true;
+
+         }
+        else
+        {
+            alert("username or password error");
+            window.location.href= "index.htm";
+
+        }
+
+        },
+        error: function (message) {
+            $("#request-process-patent").html("data update fail");
+        }
+    });
+
+});
+
 function pass(){
-			var password = document.getElementById("inputPassword").value;
-				if(password.length<6){	
-					alert("输入的密码必须大于六位")
-					return;}
-					else{
-						var count =0
-						for (var i=0;i<password.length;i++) {
-							if((password[i]>='a' && password[i]<='z')||(password[i]>='A' && password[i]<='Z')){
-								count++;
-							}
-						}
-						if(count>=2){
-							//alert("输入合法")
-						}else{
-							alert("密码必须含有两位字母两位字母")
-						}
-					}
+            var password = document.getElementById("inputPassword").value;
+                if(password.length<6){
+                    alert("输入的密码必须大于六位")
+                    return;}
+                    else{
+                        var count =0
+                        for (var i=0;i<password.length;i++) {
+                            if((password[i]>='a' && password[i]<='z')||(password[i]>='A' && password[i]<='Z')){
+                                count++;
+                            }
+                        }
+                        if(count>=2){
+                            //alert("输入合法")
+                        }else{
+                            alert("密码必须含有两位字母两位字母")
+                        }
+                    }
             }
 
 
  function pass_chk(o) {
- 	var len = o.length;
- 	var pattern = /^.*(?=.{8,})(?=.*\d)(?=.*[A-Z])(?=.*[a-z])(?=.*[!@#$%^&*? ]).*$/; // Regular expression 	
+    var len = o.length;
+    var pattern = /^.*(?=.{8,})(?=.*\d)(?=.*[A-Z])(?=.*[a-z])(?=.*[!@#$%^&*? ]).*$/; // Regular expression
 if(len <= 8){
-	if(!pattern.test(o.value)) {
- 		//alert('Length size is 8 and only contain [A-Z][a-z][!@#$%^&*? ]'); 	
-       // o.innerHTML="ength size is 8 and only contain [A-Z][a-z][!@#$%^&*? ]";	
-        $('.msg').html('Length size is 8 and  contain [A-Z][a-z][!@#$%^&*? ]');		
- 	//	o.value = o.value.substring(0, (o.value.length-1)); 	
-       return false;	
- 	}
+    if(!pattern.test(o.value)) {
+        //alert('Length size is 8 and only contain [A-Z][a-z][!@#$%^&*? ]');
+       // o.innerHTML="ength size is 8 and only contain [A-Z][a-z][!@#$%^&*? ]";
+        $('.msg').html('Length size is 8 and  contain [A-Z][a-z][!@#$%^&*? ]');
+    //	o.value = o.value.substring(0, (o.value.length-1));
+       return false;
+    }
     else
     {
-	 $('.msg').hide();
-	  return true;
+     $('.msg').hide();
+      return true;
     }
   }
 
   // if(len > 8) {
   else{
-   
- 	//	o.value = o.value.substring(0, 8);  
-   $('.msg').html('Length max size is 8');	
-   $('.msg').show();   
- 	}	
- }  
- 
-	</script>
+
+    //	o.value = o.value.substring(0, 8);
+   $('.msg').html('Length max size is 8');
+   $('.msg').show();
+    }
+ }
+
+    </script>
     <script language="javascript">
         //forbid the back button
         history.pushState(null, null, document.URL);

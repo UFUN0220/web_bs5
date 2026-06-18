@@ -5,9 +5,7 @@
 /* Move down content because we have a fixed navbar that is 50px tall */
 body {
   padding-top: 50px;
- 
 }
-
 
 /*
  * Global add-ons
@@ -16,19 +14,15 @@ body {
 .sub-header {
   padding-bottom: 10px;
   border-bottom: 1px solid #eee;
+  font-weight: bold;
 }
 
 /*
- * Top navigation
- * Hide default border to remove 1px line.
+ * Top navigation - blue separator line is set via inline style border-bottom on nav
  */
-.navbar-fixed-top {
-  border-bottom: 1px solid #428bca;
-
-}
 
 /*
- * Sidebar
+ * Sidebar - pure white background like BS3 original
  */
 
 /* Hide for mobile, show later */
@@ -38,23 +32,24 @@ body {
 @media (min-width: 768px) {
   .sidebar {
     position: fixed;
-    top: 51px;
+    top: 60px;
     bottom: 0;
     left: 0;
     z-index: 1000;
     display: block;
     padding: 20px;
+    padding-top: 12px;
     overflow-x: hidden;
-    overflow-y: auto; /* Scrollable contents if viewport is shorter than content. */
-    background-color: #f5f5f5;
+    overflow-y: auto;
+    background-color: #fff;
     border-right: 1px solid #eee;
   }
 }
 
-/* Sidebar navigation */
+/* Sidebar navigation - blue link text like BS3 original */
 @media (min-width: 768px) {
 .nav-sidebar {
-  margin-right: -21px; /* 20px padding + 1px border */
+  margin-right: -21px;
   margin-bottom: 20px;
   margin-left: -20px;
 }
@@ -62,11 +57,27 @@ body {
   padding-right: 20px;
   padding-left: 20px;
 }
+
+/* Blue hyperlink style for sidebar links */
+.sidebar-link {
+  color: #337ab7 !important;
+  font-size: 14px;
+  padding: 6px 20px;
+}
+.sidebar-link:hover {
+  color: #23527c !important;
+  background-color: #f5f5f5;
+}
+
+/* Active sidebar item - blue background, white text */
 .nav-sidebar > .active > a,
 .nav-sidebar > .active > a:hover,
 .nav-sidebar > .active > a:focus {
   color: #fff;
   background-color: #428bca;
+}
+.nav-sidebar > .active > a.sidebar-link {
+  color: #fff !important;
 }
 }
 
@@ -86,7 +97,6 @@ body {
 .main .page-header {
   margin-top: 0;
 }
-
 
 /*
  * Placeholder dashboard ideas
@@ -115,188 +125,179 @@ body {
 div.DynVar {position: absolute; font-size: 20px; font-weight:bold; color: #FFFFFF}
 @media (min-width: 768px) {
 .navbar-brand{
-	margin-left: 500px;
-	font-size: 20pt;
-	font-weight: bold;
+  font-size: 20pt;
+  font-weight: bold;
 }
 }
 /**
  * Boxes status
  */
 .pteBoxHigh {
-	background-color: #0070C0;
-	color: white;
+    background-color: #0070C0;
+    color: white;
 }
 .pteBoxLow {
-	background-color: white;
-	color: black;
+    background-color: white;
+    color: black;
 }
 .pteBoxError {
-	background-color: red;
-	color: white;
+    background-color: red;
+    color: white;
 }
 
 /**
  * Container of div boxes with "inline-block" content layout
  */
 .pteBoxContainer > div {
-
-	vertical-align: top;
-
+    vertical-align: top;
 }
+
 /**
  * Grid of data
  */
 .pteValueSet {
-width: 300px;
-	float: left;
+  width: 300px;
+    float: left;
 }
 .pteValueSet > div {
-width: 300px;
-	padding: 1px;
-	border: solid 1px #c0c0c0a8;
-	overflow: auto;
-	display: inline-block  ;
-	vertical-align: top;
+  width: 300px;
+    padding: 1px;
+    border: solid 1px #c0c0c0a8;
+    overflow: auto;
+    display: inline-block;
+    vertical-align: top;
 }
 
 .pteValueBox, .pteBinaryBox, .pteBinarySet > div {
-	width: 300px;
-	padding: 1px;
-	margin: 2px;
-	border: solid 1px #c0c0c0;
-	display: inline-block;
-	vertical-align: top;
-	float: left;
+    width: 300px;
+    padding: 1px;
+    margin: 2px;
+    border: solid 1px #c0c0c0;
+    display: inline-block;
+    vertical-align: top;
+    float: left;
 
 }
 .pteBinaryBox, .pteBinarySet > div {
-	width: 190px;
+    width: 190px;
 
 }
 .pteBinarySet, .pteIndicatorSet {
-	width: 80%;
-	float: left;
+    width: 100%;
+    float: left;
 }
 .pteValueBox > span, .pteValueSet > div > span {
-	float: left;
+    float: left;
 }
 .pteValueBox > span:last-child, .pteValueSet > div > span:last-child {
-	float: right;
-	color: black;
+    float: right;
+    color: black;
 }
+
 /**
- * Page content
- */
- 
- /**
  * Page content
  */
 
 fieldset {
+    display: block;
+    width: 100%;
+    padding: 20px;
+    margin-bottom: 20px;
+    border: 1px solid #ccc;
+    border-radius: 8px;
+}
 
-    display: inline-block;
-    margin-inline-start: 2px;
-    margin-inline-end: 2px;
-    padding-block-start: 0.35em;
-    padding-inline-start: 0.75em;
-    padding-inline-end: 0.75em;
-    padding-block-end: 0.625em;
-    min-inline-size: min-content;
-    border-width: 3px;
-    border-style: groove;
-    border-color: threedface;
-    border-image: initial
-	margin: 4px 4px 30px 4px;
-	
-	resize:both; 
-}  
 legend {
-	
-	display: inline-block;
-	width: auto;
-    padding-inline-start: 2px;
-    padding-inline-end: 2px;
-    border-width: initial;
-    border-style: none;
-    border-color: initial;
-    border-image: initial;
-    margin-bottom: 2px;
+    display: inline-block;
+    width: auto;
+    padding: 0 8px;
+    margin-bottom: 12px;
+    font-size: 16px;
+    font-weight: bold;
+    border: none;
+    float: none;
+}
+
+/**
+ * Alarm card backgrounds
+ */
+.card-station-alarm {
+    background-color: #f9e9ee;
+}
+
+.card-platform-alarm {
+    background-color: #dde1f2;
 }
 
 /**
  * Table
  */
 .pteTable {
-	width: 99%;
-	color: black;
-	border-collapse: collapse;
-	border-bottom: solid 3px;
-	margin-left: 5px;
-
+    width: 99%;
+    color: black;
+    border-collapse: collapse;
+    border-bottom: solid 3px;
+    margin-left: 5px;
 }
 .pteTable th {
-	
-	font-size: 10pt;
-	font-weight: normal;
-	border: solid 1px black;
-	color: black;
-	background-color: #CBCBCB;
-	text-align: left;
+    font-size: 10pt;
+    font-weight: normal;
+    border: solid 1px black;
+    color: black;
+    background-color: #CBCBCB;
+    text-align: left;
 }
 .pteTable td {
-
-	padding: 4px;
-	font-size: 8pt;
-	border: solid 1px black;
-	color: black;
-    
-	white-space: nowrap
+    padding: 4px;
+    font-size: 8pt;
+    border: solid 1px black;
+    color: black;
+    white-space: nowrap;
 }
 .pteSortBy {
-	text-align: right;
+    text-align: right;
 }
 
 /**
  * Table with divs
  */
 .pteKeyValTable {
-	display: table;
+    display: table;
 }
 .pteKeyValTable > div {
-	display: table-row;
+    display: table-row;
 }
 .pteKeyValTable > div > * {
-	display: table-cell;
+    display: table-cell;
 }
+
 /**
  * Status container with buttons
  */
 .pteButtonGrid input {
-	margin: 8px 1px 5px 10px;
+    margin: 8px 1px 5px 10px;
 }
 
 /**
- * Container for a main component (ex: log file content) with margins
+ * Container for a main component
  */
 .pteLogsContainer {
-	height: 100%;
-	margin-top: 1%;
-	padding: 0px 12px 0px 12px;
+    height: 100%;
+    margin-top: 1%;
+    padding: 0px 12px 0px 12px;
 }
 .pteLogsContainer object, .pteLogsContainer iframe, .pteLogs {
-	background-color: gray;
-	width: 100%;
+    background-color: gray;
+    width: 100%;
 }
 
 .pteFooter {
-	text-align: right;
-	bottom: 0;
-	margin-top: 1%;
-	width: 100%;
-	height: 12%;
+    text-align: right;
+    bottom: 0;
+    margin-top: 1%;
+    width: 100%;
+    height: 12%;
 }
-
 
 .progress, .progressCM, .progressCyber, .progressWeb  { position:relative; width: 500px; height: 30px;border: 1px solid #fff; padding: 1px; border-radius: 3px; }
 
@@ -312,18 +313,15 @@ legend {
 
 .curvedEdges { border:10px solid silver;border-radius:10px;width:20px;height:20px; }
  table.curvedEdges td, table.curvedEdges th { border-bottom:1px dotted black;padding:5px; }
- 
-.textInput {   
-	text-align: right;
+
+.textInput {
+    text-align: right;
     border-style: none;
     background-color: white;
-	size:20px;
+    size:20px;
+}
 
-
-	}
-	
-/**loginin css*/
-
+/** login css */
 
 .form-signin {
   max-width: 330px;
@@ -340,9 +338,7 @@ legend {
 .form-signin .form-control {
   position: relative;
   height: auto;
-  -webkit-box-sizing: border-box;
-     -moz-box-sizing: border-box;
-          box-sizing: border-box;
+  box-sizing: border-box;
   padding: 10px;
   font-size: 16px;
 }
@@ -351,6 +347,373 @@ legend {
 }
 
 @media (min-width: 768px) {
- .connectOn {margin-left: 150px;margin-top: 15px;width:auto; font-weight: bold;font-size:20px; color:#00ff00;background-color:transparent;border:0;outline:none}      
- .connectOff {margin-left: 150px;margin-top: 15px;width:auto; font-weight: bold;font-size:20px; color:#ff0000;background-color:transparent;border:0;outline:none} 
+ .connectOn {margin-left: 150px;margin-top: 15px;width:auto; font-weight: bold;font-size:20px; color:#00ff00;background-color:transparent;border:0;outline:none}
+ .connectOff {margin-left: 150px;margin-top: 15px;width:auto; font-weight: bold;font-size:20px; color:#ff0000;background-color:transparent;border:0;outline:none}
+}
+
+/* ============================================================
+   Alarm Data Page — BS3 Original Style Restoration
+   ============================================================ */
+
+/* --- Outer card container (fieldset wrapper) --- */
+.alarm-data-page fieldset.col-md-10,
+.main > div > .row > fieldset {
+    background-color: #fff;
+    border: 1px solid #ddd !important;
+    border-radius: 4px !important;
+    padding: 20px !important;
+    box-shadow: 0 1px 2px rgba(0,0,0,.05);
+}
+
+/* --- Card inner container (#alarm-container) --- */
+#alarm-container {
+    background-color: #fff;
+}
+
+/* --- Legend "Alarm and Event View" --- */
+.alarm-data-page fieldset > legend,
+.main fieldset > legend {
+    font-size: 16px;
+    font-weight: bold;
+    color: #333;
+    border-bottom: none;
+    margin-bottom: 15px;
+    padding: 0 10px;
+}
+
+/* --- BS3-style Nav Tabs (Alarm/Event top-level ONLY) --- */
+.nav-tabs {
+    border-bottom: 1px solid #ddd;
+}
+.nav-tabs > li {
+    float: left;
+    margin-bottom: -1px;
+}
+.nav-tabs > li > a,
+.nav-tabs .nav-link {
+    margin-right: 2px;
+    line-height: 1.42857143;
+    border: 1px solid transparent;
+    border-radius: 4px 4px 0 0;
+    padding: 8px 15px;
+    font-size: 14px;
+    color: #337ab7 !important;
+    text-decoration: none;
+    display: block;
+    background-color: #fff;
+}
+.nav-tabs > li > a:hover,
+.nav-tabs .nav-link:hover {
+    border-color: #eee #eee #ddd;
+    background-color: #f5f5f5;
+    color: #23527c !important;
+}
+/* Main tabs (Alarm/Event) active — scoped via child combinator to never match sub-tabs */
+.tab-container-main > .nav-tabs > li.active > a,
+.tab-container-main > .nav-tabs > li.active > a:hover,
+.tab-container-main > .nav-tabs > li.active > a:focus,
+.tab-container-main > .nav-tabs > .nav-item > .nav-link.active,
+.tab-container-main > .nav-tabs > .nav-item > .nav-link.active:hover,
+.tab-container-main > .nav-tabs > .nav-item > .nav-link.active:focus {
+    color: #333 !important;
+    background-color: #fff !important;
+    border: 1px solid #333 !important;
+    border-bottom-color: #fff !important;
+    font-weight: bold;
+    cursor: default;
+}
+/* Suppress active border on hidden tab group's sub-tabs — equal specificity to win */
+#alarm.tab-pane:not(.active) .nav-tabs .nav-link.active,
+#alarm.tab-pane:not(.active) .nav-tabs > li.active > a,
+#event.tab-pane:not(.active) .nav-tabs .nav-link.active,
+#event.tab-pane:not(.active) .nav-tabs > li.active > a {
+    border: 1px solid transparent !important;
+    border-bottom: none !important;
+    background-color: #f8f8f8 !important;
+    color: #337ab7 !important;
+    font-weight: normal !important;
+}
+
+/* --- Sub Nav Tabs (Station/Platform/Door) — button-pill style --- */
+.tab-content .nav-tabs {
+    border-bottom: 1px solid #ddd;
+    margin-top: 10px;
+}
+.tab-content .nav-tabs > li > a,
+.tab-content .nav-tabs .nav-link {
+    padding: 6px 14px;
+    font-size: 13px;
+    color: #337ab7 !important;
+    background-color: #f8f8f8;
+    border: 1px solid #ddd;
+    border-bottom: none;
+    border-radius: 4px 4px 0 0;
+    margin-right: 2px;
+}
+.tab-content .nav-tabs > li > a:hover,
+.tab-content .nav-tabs .nav-link:hover {
+    background-color: #e8e8e8;
+    color: #23527c !important;
+}
+/* Active sub-tab highlight — ONLY visible inside the currently active tab group */
+.tab-pane.active .nav-tabs > li.active > a,
+.tab-pane.active .nav-tabs > li.active > a:hover,
+.tab-pane.active .nav-tabs > li.active > a:focus,
+.tab-pane.active .nav-tabs .nav-link.active,
+.tab-pane.active .nav-tabs .nav-link.active:hover,
+.tab-pane.active .nav-tabs .nav-link.active:focus {
+    color: #333 !important;
+    background-color: #fff !important;
+    border: 1px solid #999 !important;
+    border-bottom-color: #fff !important;
+    font-weight: bold;
+}
+
+/* --- Tab content pane --- */
+.tab-content {
+    padding: 10px 0 0 0;
+}
+.tab-pane {
+    padding-top: 8px;
+}
+
+/* --- Checkbox rows (vertical left-aligned) --- */
+.alarm-container > div {
+    display: flex;
+    align-items: center;
+    padding: 3px 0;
+    margin-left: 0;
+}
+.alarm-container input[type="checkbox"] {
+    width: 14px;
+    height: 14px;
+    margin-right: 8px;
+    flex-shrink: 0;
+    cursor: pointer;
+    accent-color: #337ab7;
+}
+.alarm-container label {
+    font-size: 13px;
+    color: #333;
+    margin: 0;
+    cursor: pointer;
+    font-weight: normal;
+}
+
+/* "Select All" checkbox row — match alarm-item font */
+.tab-pane > div:not(.alarm-container):not(.platform-doors-container) {
+    margin-top: 5px;
+    padding: 3px 0;
+}
+.tab-pane > div:not(.alarm-container):not(.platform-doors-container) label {
+    font-size: 13px;
+    color: #333;
+    font-weight: normal;
+    margin: 0;
+    cursor: pointer;
+}
+
+/* --- Platform dropdown — BS3 style with dropdown arrow --- */
+.tab-pane select.form-select {
+    max-width: 200px;
+    font-size: 13px;
+    border-radius: 4px;
+    border: 1px solid #ccc;
+    padding: 5px 30px 5px 10px;
+    height: auto;
+    background-color: #fff;
+    background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3e%3cpath fill='none' stroke='%23333' stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M2 5l6 6 6-6'/%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 8px center;
+    background-size: 14px 10px;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+    appearance: none;
+    cursor: pointer;
+}
+.tab-pane select.form-select:focus {
+    border-color: #66afe9;
+    outline: 0;
+    box-shadow: inset 0 1px 1px rgba(0,0,0,.075), 0 0 8px rgba(102,175,233,.6);
+}
+
+/* --- Platform doors checkboxes --- */
+.platform-doors-container > div {
+    display: flex;
+    align-items: center;
+    padding: 2px 0;
+}
+.platform-doors-container input[type="checkbox"] {
+    width: 14px;
+    height: 14px;
+    margin-right: 8px;
+    flex-shrink: 0;
+}
+.platform-doors-container label {
+    font-size: 13px;
+    color: #333;
+    font-weight: normal;
+    margin: 0;
+    cursor: pointer;
+}
+
+/* --- Separator lines --- */
+.tab-pane hr {
+    margin: 10px 0;
+    border-top: 1px solid #eee;
+}
+
+/* --- Datetime inputs --- */
+.tab-pane input[type="datetime-local"] {
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    padding: 5px 8px;
+    font-size: 13px;
+    color: #555;
+    width: 180px;
+}
+.tab-pane input[type="datetime-local"]::placeholder {
+    color: #999;
+    font-style: italic;
+}
+
+/* Time label row (Start Time / End Time) */
+.tab-pane > div[style*="display: flex"] {
+    margin: 8px 0;
+    align-items: center;
+}
+.tab-pane > div[style*="display: flex"] label {
+    font-size: 13px;
+    color: #333;
+    font-weight: normal;
+    min-width: 80px;
+    text-align: left;
+}
+
+/* --- Submit button — BS3 blue rounded style --- */
+.tab-pane .btn-primary,
+.tab-pane button.btn-primary {
+    background-color: #337ab7;
+    border-color: #2e6da4;
+    color: #fff;
+    border-radius: 4px;
+    padding: 8px 24px;
+    font-size: 14px;
+    font-weight: normal;
+    margin-top: 15px;
+}
+.tab-pane .btn-primary:hover {
+    background-color: #286090;
+    border-color: #204d74;
+}
+
+/* --- Pagination buttons — BS3 style --- */
+.pagination {
+    display: flex;
+    justify-content: center;
+    gap: 4px;
+    margin-top: 20px;
+}
+.pagination .btn-info.page-btn {
+    background-color: #fff;
+    border: 1px solid #ddd;
+    color: #337ab7;
+    border-radius: 4px;
+    padding: 6px 12px;
+    font-size: 13px;
+    min-width: 36px;
+}
+.pagination .btn-info.page-btn:hover {
+    background-color: #eee;
+    border-color: #ccc;
+}
+.pagination .btn-info.page-btn.active {
+    background-color: #337ab7;
+    border-color: #2e6da4;
+    color: #fff;
+}
+
+/* --- Results table — BS3 style --- */
+.table.table-bordered {
+    border: 1px solid #ddd;
+    font-size: 13px;
+    width: 100%;
+}
+.table.table-bordered > thead > tr > th {
+    border: 1px solid #ddd;
+    border-bottom: 2px solid #ddd;
+    padding: 8px;
+    background-color: #f9f9f9;
+    font-weight: bold;
+    color: #333;
+    font-size: 13px;
+}
+.table.table-bordered > tbody > tr > td {
+    border: 1px solid #ddd;
+    padding: 6px 8px;
+    font-size: 12px;
+    color: #333;
+}
+
+/* Alternating row colors */
+.even-row {
+    background-color: #f9f9f9;
+}
+.odd-row {
+    background-color: #fff;
+}
+
+/* --- Modal — BS3 style --- */
+.modal-content {
+    border-radius: 6px;
+    border: 1px solid rgba(0,0,0,.2);
+    box-shadow: 0 5px 15px rgba(0,0,0,.5);
+}
+.modal-header {
+    padding: 15px;
+    border-bottom: 1px solid #e5e5e5;
+}
+.modal-header .modal-title {
+    font-size: 18px;
+    font-weight: bold;
+    color: #333;
+}
+.modal-body {
+    padding: 15px;
+    font-size: 14px;
+    color: #333;
+}
+.modal-footer {
+    padding: 15px;
+    text-align: right;
+    border-top: 1px solid #e5e5e5;
+}
+.modal-footer .btn-secondary {
+    background-color: #fff;
+    border: 1px solid #ccc;
+    color: #333;
+}
+.modal-footer .btn-secondary:hover {
+    background-color: #e6e6e6;
+}
+
+/* --- Table container (left side, results area) --- */
+.col-md-9[style*="float: left"] {
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 15px !important;
+    min-height: 100px;
+}
+.col-md-9[style*="float: left"]:empty::before {
+    content: '';
+    display: block;
+}
+
+/* --- Tab container (right side, filter panel) --- */
+.col-md-3[style*="float: right"] {
+    background-color: #fff;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    padding: 15px !important;
 }
