@@ -111,6 +111,12 @@ function ClearUserID(){
             var password = document.getElementById("inputPassword").value;
             var ajaxobj;
 //if(!pass_chk(password)) return
+
+// ===== TEST BYPASS: skip login API, redirect directly =====
+            window.location.href = "general_view.htm";
+            return;
+// ===== END TEST BYPASS =====
+
         $.ajax({
         type: "POST",
         url: 'login.cgi',

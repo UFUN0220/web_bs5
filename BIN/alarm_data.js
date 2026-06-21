@@ -49,10 +49,10 @@ $(document).ready(function () {
         padding: '10px' // Add padding
     });
 
-    const navTabs = $('<ul>').addClass('nav nav-tabs');
+    const navTabs = $('<ul>').addClass('nav nav-tabs tab-nav-main');
 
     const alarmTab = $('<li>').addClass('nav-item active');
-    const alarmLink = $('<a>').addClass('nav-link').attr('href', '#alarm').attr('data-bs-toggle', 'tab').text('Alarm');
+    const alarmLink = $('<a>').addClass('nav-link active').attr('href', '#alarm').attr('data-bs-toggle', 'tab').text('Alarm');
     alarmTab.append(alarmLink);
 
     const eventTab = $('<li>').addClass('nav-item');
@@ -68,7 +68,7 @@ $(document).ready(function () {
     const eventContent = $('<div>').addClass('tab-pane tab-group-event').attr('id', 'event');
 
     function createSubTabs(prefix) {
-        const subNavTabs = $('<ul>').addClass('nav nav-tabs');
+        const subNavTabs = $('<ul>').addClass(`nav nav-tabs tab-nav-sub tab-nav-sub-${prefix}`);
         const subTabContent = $('<div>').addClass('tab-content');
 
         const tabs = [
@@ -81,7 +81,7 @@ $(document).ready(function () {
             const isActive = index === 0;
             const fullId = `${prefix}-${tab.id}`; // Unique: alarm-station, event-door
             const tabItem = $('<li>').addClass('nav-item').toggleClass('active', isActive);
-            const link = $('<a>').addClass('nav-link')
+            const link = $('<a>').addClass('nav-link').toggleClass('active', isActive)
                 .attr('href', `#${fullId}`)
                 .attr('data-bs-toggle', 'tab')
                 .text(tab.text);
@@ -699,44 +699,56 @@ $(document).ready(function () {
             return $('<label>').attr('for', forId).text(text).css('margin-top', '5px');
         }
 
-        /**
-         * Handles the click event for tabs.
-         * This function is used to switch tabs and update the corresponding content.
-         * @param {Event} e - The click event object.
-         */
+        function setActiveTab($tabNav, $link) {
+            $tabNav.children('.nav-item').removeClass('active')
+                .children('.nav-link').removeClass('active').attr('aria-selected', 'false');
+            $link.closest('.nav-item').addClass('active');
+            $link.addClass('active').attr('aria-selected', 'true');
+        }
+
+        function deactivateSubTabs(subTabs) {
+            subTabs.subNavTabs.children('.nav-item').removeClass('active')
+                .children('.nav-link').removeClass('active').attr('aria-selected', 'false');
+            subTabs.subTabContent.children('.tab-pane').removeClass('active show');
+        }
+
+        function activateSubTab(subTabs, $link) {
+            const $targetLink = $link && $link.length
+                ? $link
+                : subTabs.subNavTabs.children('.nav-item').first().children('.nav-link');
+            const contentId = $targetLink.attr('href').substring(1);
+
+            setActiveTab(subTabs.subNavTabs, $targetLink);
+            subTabs.subTabContent.children('.tab-pane').removeClass('active show');
+            subTabs.subTabContent.children(`#${contentId}`).addClass('active show');
+
+            return {
+                subTab: contentId.split('-')[1],
+                content: subTabs.subTabContent.children(`#${contentId}`)
+            };
+        }
+
         function handleTabClick(e) {
             tableContainer.empty();
             const $clickedLink = $(this);
             const tab = $clickedLink.attr('href').substring(1); // "alarm" or "event"
-            const otherGroup = tab === 'alarm' ? 'event' : 'alarm';
+            const currentSubTabs = tab === 'alarm' ? alarmSubTabs : eventSubTabs;
+            const inactiveSubTabs = tab === 'alarm' ? eventSubTabs : alarmSubTabs;
 
-            // Reset other group's sub-tab active state via jQuery (NOT BS5 tab('show') to avoid event recursion)
-            const otherSubTabs = otherGroup === 'alarm' ? alarmSubTabs : eventSubTabs;
-            otherSubTabs.subNavTabs.find('a.nav-link.active').removeClass('active');
-            otherSubTabs.subNavTabs.find('li.active').removeClass('active');
-            // Activate the first sub-tab in the other group (silent, no BS5 event)
-            otherSubTabs.subNavTabs.find('li:first').addClass('active');
-            otherSubTabs.subNavTabs.find('li:first a.nav-link').addClass('active');
-
-            // Get current group's active sub-tab (set by BS5)
-            const subTabsNav = tab === 'alarm' ? alarmSubTabs.subNavTabs : eventSubTabs.subNavTabs;
-            const activeLink = subTabsNav.find('a.nav-link.active');
-            const rawSubTab = activeLink.attr('href').substring(1);
-            const subTab = rawSubTab.split('-')[1];
-
-            const content = (tab === 'alarm' ? alarmSubTabs.subTabContent : eventSubTabs.subTabContent).find('#' + rawSubTab);
-            content.addClass('active');
-            updateContent(tab, subTab, content);
+            setActiveTab(navTabs, $clickedLink);
+            deactivateSubTabs(inactiveSubTabs);
+            const activeSubTab = activateSubTab(currentSubTabs);
+            updateContent(tab, activeSubTab.subTab, activeSubTab.content);
         }
 
         function handleSubTabClick(e) {
             tableContainer.empty();
-            const rawHref = $(this).attr('href').substring(1); // "alarm-station" or "event-door"
+            const $clickedLink = $(this);
+            const rawHref = $clickedLink.attr('href').substring(1); // "alarm-station" or "event-door"
             const tab = rawHref.startsWith('alarm-') ? 'alarm' : 'event';
-            const subTab = rawHref.split('-')[1];
-            const content = (tab === 'alarm' ? alarmSubTabs.subTabContent : eventSubTabs.subTabContent).find('#' + rawHref);
-            content.addClass('active');
-            updateContent(tab, subTab, content);
+            const subTabs = tab === 'alarm' ? alarmSubTabs : eventSubTabs;
+            const activeSubTab = activateSubTab(subTabs, $clickedLink);
+            updateContent(tab, activeSubTab.subTab, activeSubTab.content);
         }
 
         // Handle main tab click events — scoped to main nav-tabs container only
@@ -746,7 +758,9 @@ $(document).ready(function () {
         alarmContent.on('shown.bs.tab', 'a[data-bs-toggle="tab"][href$="-station"], a[data-bs-toggle="tab"][href$="-platform"], a[data-bs-toggle="tab"][href$="-door"]', handleSubTabClick);
         eventContent.on('shown.bs.tab', 'a[data-bs-toggle="tab"][href$="-station"], a[data-bs-toggle="tab"][href$="-platform"], a[data-bs-toggle="tab"][href$="-door"]', handleSubTabClick);
 
-        // Initial content load
-        updateContent('alarm', 'station', alarmSubTabs.subTabContent.find('#alarm-station'));
+        // Initial state: Alarm is selected; Event has no residual active sub-tab.
+        const initialAlarmSubTab = activateSubTab(alarmSubTabs);
+        deactivateSubTabs(eventSubTabs);
+        updateContent('alarm', initialAlarmSubTab.subTab, initialAlarmSubTab.content);
     });
 });

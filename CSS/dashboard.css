@@ -381,16 +381,18 @@ legend {
     padding: 0 10px;
 }
 
-/* --- BS3-style Nav Tabs (Alarm/Event top-level ONLY) --- */
-.nav-tabs {
+/* --- Alarm/Event tab navigation: each group owns its active state --- */
+.tab-container-main > .tab-nav-main,
+.tab-container-main > .tab-content > .tab-group-alarm > .tab-nav-sub-alarm,
+.tab-container-main > .tab-content > .tab-group-event > .tab-nav-sub-event {
     border-bottom: 1px solid #ddd;
 }
-.nav-tabs > li {
+.tab-container-main .nav-tabs > li {
     float: left;
     margin-bottom: -1px;
 }
-.nav-tabs > li > a,
-.nav-tabs .nav-link {
+.tab-container-main .nav-tabs > li > a,
+.tab-container-main .nav-tabs .nav-link {
     margin-right: 2px;
     line-height: 1.42857143;
     border: 1px solid transparent;
@@ -402,19 +404,16 @@ legend {
     display: block;
     background-color: #fff;
 }
-.nav-tabs > li > a:hover,
-.nav-tabs .nav-link:hover {
+.tab-container-main .nav-tabs > li > a:hover,
+.tab-container-main .nav-tabs .nav-link:hover {
     border-color: #eee #eee #ddd;
     background-color: #f5f5f5;
     color: #23527c !important;
 }
-/* Main tabs (Alarm/Event) active — scoped via child combinator to never match sub-tabs */
-.tab-container-main > .nav-tabs > li.active > a,
-.tab-container-main > .nav-tabs > li.active > a:hover,
-.tab-container-main > .nav-tabs > li.active > a:focus,
-.tab-container-main > .nav-tabs > .nav-item > .nav-link.active,
-.tab-container-main > .nav-tabs > .nav-item > .nav-link.active:hover,
-.tab-container-main > .nav-tabs > .nav-item > .nav-link.active:focus {
+/* Main Alarm/Event tabs only. */
+.tab-container-main > .tab-nav-main > li.active > .nav-link,
+.tab-container-main > .tab-nav-main > li.active > .nav-link:hover,
+.tab-container-main > .tab-nav-main > li.active > .nav-link:focus {
     color: #333 !important;
     background-color: #fff !important;
     border: 1px solid #333 !important;
@@ -422,25 +421,16 @@ legend {
     font-weight: bold;
     cursor: default;
 }
-/* Suppress active border on hidden tab group's sub-tabs — equal specificity to win */
-#alarm.tab-pane:not(.active) .nav-tabs .nav-link.active,
-#alarm.tab-pane:not(.active) .nav-tabs > li.active > a,
-#event.tab-pane:not(.active) .nav-tabs .nav-link.active,
-#event.tab-pane:not(.active) .nav-tabs > li.active > a {
-    border: 1px solid transparent !important;
-    border-bottom: none !important;
-    background-color: #f8f8f8 !important;
-    color: #337ab7 !important;
-    font-weight: normal !important;
-}
 
 /* --- Sub Nav Tabs (Station/Platform/Door) — button-pill style --- */
-.tab-content .nav-tabs {
-    border-bottom: 1px solid #ddd;
+.tab-container-main > .tab-content > .tab-group-alarm > .tab-nav-sub-alarm,
+.tab-container-main > .tab-content > .tab-group-event > .tab-nav-sub-event {
     margin-top: 10px;
 }
-.tab-content .nav-tabs > li > a,
-.tab-content .nav-tabs .nav-link {
+.tab-container-main > .tab-content > .tab-group-alarm > .tab-nav-sub-alarm > li > a,
+.tab-container-main > .tab-content > .tab-group-alarm > .tab-nav-sub-alarm .nav-link,
+.tab-container-main > .tab-content > .tab-group-event > .tab-nav-sub-event > li > a,
+.tab-container-main > .tab-content > .tab-group-event > .tab-nav-sub-event .nav-link {
     padding: 6px 14px;
     font-size: 13px;
     color: #337ab7 !important;
@@ -450,18 +440,18 @@ legend {
     border-radius: 4px 4px 0 0;
     margin-right: 2px;
 }
-.tab-content .nav-tabs > li > a:hover,
-.tab-content .nav-tabs .nav-link:hover {
+.tab-container-main > .tab-content > .tab-group-alarm > .tab-nav-sub-alarm .nav-link:hover,
+.tab-container-main > .tab-content > .tab-group-event > .tab-nav-sub-event .nav-link:hover {
     background-color: #e8e8e8;
     color: #23527c !important;
 }
-/* Active sub-tab highlight — ONLY visible inside the currently active tab group */
-.tab-pane.active .nav-tabs > li.active > a,
-.tab-pane.active .nav-tabs > li.active > a:hover,
-.tab-pane.active .nav-tabs > li.active > a:focus,
-.tab-pane.active .nav-tabs .nav-link.active,
-.tab-pane.active .nav-tabs .nav-link.active:hover,
-.tab-pane.active .nav-tabs .nav-link.active:focus {
+/* A sub-tab can be highlighted only inside its own visible parent group. */
+.tab-container-main > .tab-content > .tab-group-alarm.active > .tab-nav-sub-alarm > li.active > .nav-link,
+.tab-container-main > .tab-content > .tab-group-alarm.active > .tab-nav-sub-alarm > li.active > .nav-link:hover,
+.tab-container-main > .tab-content > .tab-group-alarm.active > .tab-nav-sub-alarm > li.active > .nav-link:focus,
+.tab-container-main > .tab-content > .tab-group-event.active > .tab-nav-sub-event > li.active > .nav-link,
+.tab-container-main > .tab-content > .tab-group-event.active > .tab-nav-sub-event > li.active > .nav-link:hover,
+.tab-container-main > .tab-content > .tab-group-event.active > .tab-nav-sub-event > li.active > .nav-link:focus {
     color: #333 !important;
     background-color: #fff !important;
     border: 1px solid #999 !important;
