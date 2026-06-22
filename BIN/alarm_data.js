@@ -1,595 +1,766 @@
-/**
- * Alarm & Event Data Page — ES6+ rewrite
- * Replaces: jQuery $.ajax, $.getJSON, $(), .on(), .modal(), .tab()
- * Uses: AppUtils, bootstrap.Tab, bootstrap.Modal (native BS5)
- */
-'use strict';
+const Alarm_Station = 1;
+const Event_Station = 2;
+const Alarm_Platform = 3;
+const Event_Platform = 4;
+const Alarm_Door = 5;
+const Event_Door = 6;
 
-const AlarmDataPage = (() => {
-  // ====================================================================
-  //  Constants
-  // ====================================================================
-  const Alarm_Station = 1;
-  const Event_Station = 2;
-  const Alarm_Platform = 3;
-  const Event_Platform = 4;
-  const Alarm_Door = 5;
-  const Event_Door = 6;
-
-  const STATE_MAPPING = {
+const stateMapping = {
     0: 'Appear',
     1: 'Active',
     2: 'Acknowledged',
-  };
+};
 
-  const ROWS_PER_PAGE = 50;
+$(document).ready(function () {
+    const mainDiv = $('.main');
 
-  // ====================================================================
-  //  Cached DOM references (populated on init)
-  // ====================================================================
-  let mainDiv, tableContainer, tabContainer;
-  let navTabs, tabContent, alarmContent, eventContent;
-  let alarmSubTabs, eventSubTabs;
-  let dataCache = null;
+    // Create a new row
+    const rowDiv = $('<div>').addClass('row');
 
-  // ====================================================================
-  //  Helper — safe element creation
-  // ====================================================================
-  function el(tag, attrs = {}, children = []) {
-    return AppUtils.createEl(tag, attrs, children);
-  }
+    // Create a fieldset
+    const fieldset = $('<fieldset>').addClass('col-md-10').css({
+        padding: '20px',
+        marginTop: '20px',
+        width: '100%',
+    });
 
-  function createCheckbox(id) {
-    return el('input', { type: 'checkbox', id, style: { marginRight: '5px', width: '13px', height: '13px' } });
-  }
+    const AlarmContainer = $('<div>').attr('id', 'alarm-container').addClass('container-fluid').css({
+        'border': '1px solid #ccc',
+        'border-radius': '10px',
+        'padding': '20px',
+        'box-shadow': '0 4px 8px rgba(0, 0, 0, 0.1)',
+        'height': 'auto' // Set height to auto
+    });
 
-  function createLabel(forId, text) {
-    return el('label', { for: forId, style: { marginTop: '5px' } }, text);
-  }
+    const legend = $('<legend>').text('Alarm and Event View');
+    fieldset.append(legend);
+    fieldset.append(AlarmContainer);
 
-  // ====================================================================
-  //  Data access
-  // ====================================================================
-  function getItems(tab, subTab, data) {
-    if (tab === 'alarm' && subTab === 'station') return data.station_alarms;
-    if (tab === 'event' && subTab === 'station') return data.station_events;
-    if (tab === 'alarm' && subTab === 'platform') return data.platform_alarms;
-    if (tab === 'event' && subTab === 'platform') return data.platform_events;
-    if (tab === 'alarm' && subTab === 'door') return data.door_alarms;
-    if (tab === 'event' && subTab === 'door') return data.door_events;
-    return [];
-  }
+    // Create a container for the tabs
+    const tabContainer = $('<div>').addClass('col-md-3 tab-container-main').css({
+        float: 'right', // Float to the right
+        border: '1px solid #ccc', // Add border
+        padding: '10px' // Add padding
+    });
 
-  function getAlarmType(tab, subTab) {
-    if (tab === 'alarm' && subTab === 'station') return Alarm_Station;
-    if (tab === 'event' && subTab === 'station') return Event_Station;
-    if (tab === 'alarm' && subTab === 'platform') return Alarm_Platform;
-    if (tab === 'event' && subTab === 'platform') return Event_Platform;
-    if (tab === 'alarm' && subTab === 'door') return Alarm_Door;
-    if (tab === 'event' && subTab === 'door') return Event_Door;
-    return 0;
-  }
+    const tableContainer = $('<div>').addClass('col-md-9').css({
+        float: 'left', // Float to the right
+        border: '1px solid #ccc', // Add border
+        padding: '10px' // Add padding
+    });
 
-  // ====================================================================
-  //  Content rendering (core function)
-  // ====================================================================
-  function updateContent(tab, subTab, contentEl) {
-    // Clear old DOM and events
-    while (contentEl.firstChild) {
-      contentEl.removeChild(contentEl.firstChild);
+    const navTabs = $('<ul>').addClass('nav nav-tabs tab-nav-main');
+
+    const alarmTab = $('<li>').addClass('nav-item active');
+    const alarmLink = $('<a>').addClass('nav-link active').attr('href', '#alarm').attr('data-bs-toggle', 'tab').text('Alarm');
+    alarmTab.append(alarmLink);
+
+    const eventTab = $('<li>').addClass('nav-item');
+    const eventLink = $('<a>').addClass('nav-link').attr('href', '#event').attr('data-bs-toggle', 'tab').text('Event');
+    eventTab.append(eventLink);
+
+    navTabs.append(alarmTab);
+    navTabs.append(eventTab);
+
+    const tabContent = $('<div>').addClass('tab-content');
+
+    const alarmContent = $('<div>').addClass('tab-pane active tab-group-alarm').attr('id', 'alarm');
+    const eventContent = $('<div>').addClass('tab-pane tab-group-event').attr('id', 'event');
+
+    function createSubTabs(prefix) {
+        const subNavTabs = $('<ul>').addClass(`nav nav-tabs tab-nav-sub tab-nav-sub-${prefix}`);
+        const subTabContent = $('<div>').addClass('tab-content');
+
+        const tabs = [
+            { id: 'station', text: 'Station' },
+            { id: 'platform', text: 'Platform' },
+            { id: 'door', text: 'Door' }
+        ];
+
+        tabs.forEach((tab, index) => {
+            const isActive = index === 0;
+            const fullId = `${prefix}-${tab.id}`; // Unique: alarm-station, event-door
+            const tabItem = $('<li>').addClass('nav-item').toggleClass('active', isActive);
+            const link = $('<a>').addClass('nav-link').toggleClass('active', isActive)
+                .attr('href', `#${fullId}`)
+                .attr('data-bs-toggle', 'tab')
+                .text(tab.text);
+            tabItem.append(link);
+            subNavTabs.append(tabItem);
+
+            const content = $('<div>')
+                .addClass('tab-pane')
+                .toggleClass('active', isActive)
+                .attr('id', fullId);
+            subTabContent.append(content);
+        });
+
+        return { subNavTabs, subTabContent };
     }
 
-    const items = getItems(tab, subTab, dataCache);
-    if (!items) return;
+    const alarmSubTabs = createSubTabs('alarm');
+    alarmContent.append(alarmSubTabs.subNavTabs);
+    alarmContent.append(alarmSubTabs.subTabContent);
 
-    // Alarm items container
-    const alarmContainerDiv = el('div', { className: 'alarm-container' });
-    contentEl.appendChild(alarmContainerDiv);
+    const eventSubTabs = createSubTabs('event');
+    eventContent.append(eventSubTabs.subNavTabs);
+    eventContent.append(eventSubTabs.subTabContent);
 
-    // Checkbox items
-    items.forEach((item) => {
-      const checkbox = createCheckbox(item.id);
-      const label = createLabel(item.id, item.name);
-      const container = el('div', {}, [checkbox, label]);
-      alarmContainerDiv.appendChild(container);
-    });
+    tabContent.append(alarmContent);
+    tabContent.append(eventContent);
 
-    // "Select All" checkbox
-    const selectAllId = `${tab}-${subTab}-select-all`;
-    const selectAllCheckbox = createCheckbox(selectAllId);
-    const selectAllLabel = createLabel(selectAllId, 'Select All');
-    const selectAllContainer = el('div', {}, [selectAllCheckbox, selectAllLabel]);
-    contentEl.appendChild(selectAllContainer);
+    tabContainer.append(navTabs);
+    tabContainer.append(tabContent);
 
-    selectAllCheckbox.addEventListener('change', function () {
-      const checked = this.checked;
-      alarmContainerDiv.querySelectorAll('input[type="checkbox"]').forEach(cb => {
-        cb.checked = checked;
-      });
-    });
+    AlarmContainer.append(tableContainer);
+    AlarmContainer.append(tabContainer);
+    rowDiv.append(fieldset);
+    mainDiv.append(rowDiv);
 
-    // Separator
-    contentEl.appendChild(el('hr'));
+    // Fetch data from data.json
+    $.getJSON('data.json', function (data) {
+        function updateContent(tab, subTab, content) {
+            content.off(); // Unbind all old event handlers to prevent residue
+            content.empty();
+            let items = getItems(tab, subTab, data);
 
-    // Platform dropdown + doors (not for station)
-    if (subTab !== 'station') {
-      const dropdown = el('select', { className: 'form-select', style: { marginTop: '20px' } });
-      for (let i = 1; i <= dataCache.platform_number; i++) {
-        const opt = el('option', { value: String(i) }, `Platform ${i}`);
-        dropdown.appendChild(opt);
-      }
-      contentEl.appendChild(dropdown);
-      contentEl.appendChild(el('hr'));
+            // Create a container for platform doors
+            const AlarmContainer = $('<div>').addClass('alarm-container');
 
-      const platformDoorsContainer = el('div', { className: 'platform-doors-container' });
-      contentEl.appendChild(platformDoorsContainer);
+            // Append the platform doors container to the content
+            content.append(AlarmContainer);
 
-      dropdown.addEventListener('change', function () {
-        const selectedPlatform = this.value;
-        while (platformDoorsContainer.firstChild) {
-          platformDoorsContainer.removeChild(platformDoorsContainer.firstChild);
-        }
-        if (subTab !== 'platform') {
-          const key = `platform_${selectedPlatform}_doors`;
-          const doors = dataCache[key];
-          if (doors) {
-            doors.forEach((door) => {
-              if (door.type === 'psd' || door.type === 'apg') {
-                const doorCb = createCheckbox(door.door_number);
-                const doorLbl = createLabel(door.door_number, door.name);
-                const doorDiv = el('div', {}, [doorCb, doorLbl]);
-                platformDoorsContainer.appendChild(doorDiv);
-              }
+            items.forEach((item, index) => {
+                const checkboxId = item.id;
+                const checkbox = createCheckbox(checkboxId);
+                const label = createLabel(checkboxId, item.name);
+                const container = $('<div>').append(checkbox).append(label);
+                AlarmContainer.append(container);
             });
-          }
+
+            // Add "Select All" checkbox
+            const selectAllCheckboxId = `${tab}-${subTab}-select-all`;
+            const selectAllCheckbox = createCheckbox(selectAllCheckboxId);
+            const selectAllLabel = createLabel(selectAllCheckboxId, 'Select All');
+            const selectAllContainer = $('<div>').append(selectAllCheckbox).append(selectAllLabel);
+            content.append(selectAllContainer);
+
+            // Handle "Select All" checkbox change event
+            selectAllCheckbox.on('change', function () {
+                const isChecked = $(this).is(':checked');
+                AlarmContainer.find('input[type="checkbox"]').not('.platform-doors-container input[type="checkbox"]').prop('checked', isChecked);
+            });
+
+            // Add a separator line below the dropdown
+            content.append($('<hr>'));
+
+            if (subTab !== 'station') {
+                // Create the dropdown
+                const dropdown = $('<select>').addClass('form-select').css('margin-top', '20px');
+
+                // Add options to the dropdown based on platform_number
+                for (let i = 1; i <= data.platform_number; i++) {
+                    const option = $('<option>').attr('value', i).text(`Platform ${i}`);
+                    dropdown.append(option);
+                }
+
+                // Append the dropdown to the content
+                content.append(dropdown);
+
+                // Add a separator line below the dropdown
+                content.append($('<hr>'));
+
+                // Create a container for platform doors
+                const platformDoorsContainer = $('<div>').addClass('platform-doors-container');
+
+                // Append the platform doors container to the content
+                content.append(platformDoorsContainer);
+
+                // Handle dropdown change event
+                dropdown.on('change', function () {
+                    const selectedPlatform = $(this).val();
+                    platformDoorsContainer.empty();
+                    if (subTab != 'platform') {
+                        // Filter and display platform doors based on the selected platform
+                        const platformDoorsKey = `platform_${selectedPlatform}_doors`;
+                        if (data[platformDoorsKey]) {
+                            data[platformDoorsKey].forEach((door, index) => {
+                                if (door.type === 'psd' || door.type === 'apg') {
+                                    const doorCheckboxId = door.door_number;
+                                    const doorCheckbox = createCheckbox(doorCheckboxId);
+                                    const doorLabel = createLabel(doorCheckboxId, door.name);
+                                    const doorContainer = $('<div>').append(doorCheckbox).append(doorLabel);
+                                    platformDoorsContainer.append(doorContainer);
+                                }
+                            });
+                        }
+                    }
+                });
+
+                // Trigger change event to display initial platform doors
+                dropdown.trigger('change');
+
+                if (subTab != 'platform') {
+                    // Add "Select All" checkbox for platform doors
+                    const selectAllPlatformDoorsCheckboxId = 'select-all-platform-doors';
+                    const selectAllPlatformDoorsCheckbox = createCheckbox(selectAllPlatformDoorsCheckboxId);
+                    const selectAllPlatformDoorsLabel = createLabel(selectAllPlatformDoorsCheckboxId, 'Select All');
+                    const selectAllPlatformDoorsContainer = $('<div>').append(selectAllPlatformDoorsCheckbox).append(selectAllPlatformDoorsLabel);
+                    content.append(selectAllPlatformDoorsContainer);
+
+                    // Handle "Select All Platform Doors" checkbox change event
+                    selectAllPlatformDoorsCheckbox.on('change', function () {
+                        const isChecked = $(this).is(':checked');
+                        platformDoorsContainer.find('input[type="checkbox"]').prop('checked', isChecked);
+                    });
+                    // Add a separator line below the dropdown
+                    content.append($('<hr>'));
+                }
+
+            }
+
+            // Add date and time picker for start time
+            const startTimePickerId = 'start-time-picker';
+            const startTimeLabel = createLabel(startTimePickerId, 'Start Time');
+            const startTimeInput = $('<input>').attr({ type: 'datetime-local', id: startTimePickerId });
+            const startTimeContainer = $('<div>').css('display', 'flex').css('justify-content', 'space-between').append(startTimeLabel).append(startTimeInput);
+            content.append(startTimeContainer);
+
+            // Add date and time picker for end time
+            const endTimePickerId = 'end-time-picker';
+            const endTimeLabel = createLabel(endTimePickerId, 'End Time');
+            const endTimeInput = $('<input>').attr({ type: 'datetime-local', id: endTimePickerId });
+            const endTimeContainer = $('<div>').css('display', 'flex').css('justify-content', 'space-between').append(endTimeLabel).append(endTimeInput);
+            content.append(endTimeContainer);
+
+            //Add a button to submit the form
+            const submitButton = $('<button>').text('Submit').addClass('btn btn-primary').css('margin-top', '20px');
+            content.append(submitButton);
+
+
+            // Remove any existing error modal to prevent DOM residue
+            $('#errorModal').remove();
+
+            // Create the modal for error messages
+            const errorModal = $('<div>', { class: 'modal fade', id: 'errorModal', tabindex: '-1', role: 'dialog', 'aria-labelledby': 'errorModalLabel', 'aria-hidden': 'true' }).append(
+                $('<div>', { class: 'modal-dialog', role: 'document' }).append(
+                    $('<div>', { class: 'modal-content' }).append(
+                        $('<div>', { class: 'modal-header' }).append(
+                            $('<h5>', { class: 'modal-title', id: 'errorModalLabel' }).text('Error'),
+                            $('<button>', { type: 'button', class: 'btn-close', 'data-bs-dismiss': 'modal', 'aria-label': 'Close' })
+                        ),
+                        $('<div>', { class: 'modal-body', id: 'errorModalBody' }).text('<!-- Error message will be inserted here -->'),
+                        $('<div>', { class: 'modal-footer' }).append(
+                            $('<button>', { type: 'button', class: 'btn btn-secondary', 'data-bs-dismiss': 'modal' }).text('Close')
+                        )
+                    )
+                )
+            );
+
+            $('body').append(errorModal);
+
+            // The click event handler for the submit button
+            submitButton.on('click', function (e) {
+                // Prevent the default form submission behavior
+                e.preventDefault();
+
+                // Scroll to the top of the page
+                window.scrollTo({ top: 0, behavior: 'auto' });
+
+                // Get the active tab ID (e.g., 'alarm' or 'event')
+                const tab = (navTabs.find('li.active a').length ? navTabs.find('li.active a') : navTabs.find('a.nav-link.active')).attr('href').substring(1);
+
+                // Get the active sub-tab ID based on the active tab
+                const subTabsNav = (tab === 'alarm' ? alarmSubTabs.subNavTabs : eventSubTabs.subNavTabs);
+                const rawSubTabHref = (subTabsNav.find('li.active a').length ? subTabsNav.find('li.active a') : subTabsNav.find('a.nav-link.active')).attr('href').substring(1);
+                const subTab = rawSubTabHref.includes('-') ? rawSubTabHref.split('-')[1] : rawSubTabHref;
+
+                // Get the content element using unique prefixed DOM ID (e.g., #alarm-station)
+                const content = (tab === 'alarm' ? alarmSubTabs.subTabContent : eventSubTabs.subTabContent)
+                    .find('#' + rawSubTabHref);
+
+                // Retrieve the items associated with the active tab and sub-tab
+                const items = getItems(tab, subTab, data);
+
+                // Parse the alarm type based on the active tab and sub-tab
+                const Alarm_type = parseInt(getAlarm_type(tab, subTab));
+
+                // Initialize arrays to store selected items and platform doors
+                const selectedItems = [];
+                const selectedPlatformDoors = [];
+
+                // Get the selected platform from the dropdown
+                const selectedPlatform = content.find('select').val();
+
+                // Get the start and end time values from the input fields
+                const startTime = content.find('#start-time-picker').val();
+                const endTime = content.find('#end-time-picker').val();
+
+                // Validate that both start and end times are provided
+                if (!startTime || !endTime) {
+                    $('#errorModalBody').text('Start Time and End Time cannot be empty.');
+                    $('#errorModal').modal('show');
+                    return;
+                }
+
+                // Validate that the end time is greater than the start time
+                if (new Date(endTime) <= new Date(startTime)) {
+                    $('#errorModalBody').text('End Time must be larger than Start Time.');
+                    $('#errorModal').modal('show');
+                    return;
+                }
+
+                // Collect IDs of selected items from checkboxes within the content
+                content.find('.alarm-container input[type="checkbox"]').each(function () {
+                    if ($(this).is(':checked')) {
+                        selectedItems.push(parseInt($(this).attr('id')));
+                    }
+                });
+
+                // Validate that at least one item is selected
+                if (selectedItems.length === 0) {
+                    $('#errorModalBody').text('No items selected.');
+                    $('#errorModal').modal('show');
+                    return;
+                }
+
+                // If the alarm type is related to doors, collect selected platform doors
+                if (Alarm_type === Alarm_Door || Alarm_type === Event_Door) {
+                    // Collect IDs of selected platform doors from checkboxes within the platform doors container
+                    content.find('.platform-doors-container input[type="checkbox"]').each(function () {
+                        if ($(this).is(':checked')) {
+                            selectedPlatformDoors.push(parseInt($(this).attr('id')));
+                        }
+                    });
+
+                    // Validate that at least one door is selected
+                    if (selectedPlatformDoors.length === 0) {
+                        $('#errorModalBody').text('No doors selected.');
+                        $('#errorModal').modal('show');
+                        return;
+                    }
+                }
+
+                var ajaxobj;
+                $.ajax({
+                    url: 'http://127.0.0.1:8080/alarm_data',
+                    type: "GET",
+                    contentType: "application/json; charset=utf-8",
+                    datatype: 'json',
+                    data: {
+                        Alarm_type: Alarm_type,
+                        selectedAlarmItems: selectedItems,
+                        selectedPlatform: selectedPlatform,
+                        selectedPlatformDoors: selectedPlatformDoors,
+                        startTime: startTime,
+                        endTime: endTime
+                    },
+                    success: function (data) {
+                        let headers = [];
+                        const rowsPerPage = 50;
+                        let currentPage = 1;
+                        $.getJSON('data.json', function (jsonData) {
+                            renderTable(data, jsonData);
+                        })
+                        function renderTable(data, jsonData) {
+                            const table = $('<table>').addClass('table table-bordered col-md-9');
+                            const tbody = $('<tbody>');
+
+                            // Paginate the data
+                            const paginatedData = paginateData(data, currentPage, rowsPerPage);
+
+                            headers = renderTableRows(Alarm_type, paginatedData, jsonData, tbody, currentPage, rowsPerPage);
+
+                            const thead = createTableHeader(headers);
+
+                            table.append(thead).append(tbody);
+
+                            // Append the table to the AlarmContainer
+                            tableContainer.empty().append(table);
+
+                            // Render pagination
+                            const pagination = renderPagination(data.length, rowsPerPage);
+
+                            tableContainer.append(pagination);
+
+                            // Add click event for pagination buttons
+                            $('.page-btn').on('click', function () {
+                                window.scrollTo({ top: 0, behavior: 'auto' });
+                                currentPage = $(this).data('page');
+                                renderTable(data, jsonData);
+                            });
+                            /**
+                             * Formats a given date time into a specific string format.
+                             * This function takes a date time object and formats it into a "MM/DD HH:mm:ss.SSS" string.
+                             * @param {Date} dateTime - The date time object to be formatted.
+                             * @returns {string} - The formatted date time string.
+                             */
+                            function formatDateTime(dateTime) {
+                                // Create a new Date object for manipulation
+                                const date = new Date(dateTime);
+
+                                // Format the date part to "MM/DD"
+                                const formattedDate = date.toLocaleDateString(undefined, { month: '2-digit', day: '2-digit' });
+
+                                // Format the time part to "HH:mm:ss" in 24-hour format
+                                const formattedTime = date.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
+
+                                // Get milliseconds and format it to "SSS"
+                                const milliseconds = date.getMilliseconds().toString().padStart(3, '0');
+
+                                // Concatenate formatted date, time, and milliseconds into a single string and return
+                                return `${formattedDate} ${formattedTime}.${milliseconds}`;
+                            }
+
+                            /**
+                             * Creates a table header for an HTML table.
+                             *
+                             * This function takes an array of header labels and returns a thead element 
+                             * containing these headers. It is primarily used for dynamically generating 
+                             * the header section of an HTML table.
+                             *
+                             * @param {Array} headers - An array of strings representing the header labels.
+                             * @returns {jQuery} - A jQuery object containing the dynamically created thead element.
+                             */
+                            function createTableHeader(headers) {
+                                // Create a thead element, append a tr element to it, and populate it with th elements
+                                const thead = $('<thead>').append(
+                                    $('<tr>').append(
+                                        headers.map(header => $('<th>').text(header))
+                                    )
+                                );
+                                // Return the created thead element
+                                return thead;
+                            }
+
+                            /**
+                             * Creates and returns a table row containing the specified cells.
+                             *
+                             * @param {Array} cells - An array of cell contents to be added to the row.
+                             * @returns {jQuery} - A jQuery object representing a table row (<tr>) containing the specified cells.
+                             */
+                            function createTableRow(cells) {
+                                // Create a table row (<tr>) using jQuery and append <td> elements for each cell content
+                                const t_row = $('<tr>').append(
+                                    cells.map(cell => $('<td>').text(cell))
+                                );
+                                // Return the constructed table row
+                                return t_row;
+                            }
+
+                            /**
+                             * Retrieves the alarm event name based on the provided ID.
+                             * If a matching ID is found, it returns the corresponding event name; otherwise, it returns the ID itself.
+                             * 
+                             * @param {Array} alarmEvents - Array of alarm events, each containing 'id' and 'name' properties.
+                             * @param {string} id - The ID of the alarm event to look up.
+                             * @returns {string} - The name of the alarm event if found, otherwise the ID itself.
+                             */
+                            function getAlarmEventName(alarmEvents, id) {
+                                let name = id;
+                                // Iterate through the alarm events to find a matching ID
+                                alarmEvents.forEach(alarm => {
+                                    if (alarm.id === id) {
+                                        name = alarm.name;
+                                    }
+                                });
+                                return name;
+                            }
+                            /**
+                             * Renders table rows based on alarm or event data.
+                             * 
+                             * This function dynamically generates table rows according to the type of alarm or event. It handles different data structures for various alarm or event sources,
+                             * formats the data, and adds it to the table body. The function also supports pagination by calculating the row number based on the current page and rows per page.
+                             * 
+                             * @param {string} Alarm_type - The type of alarm or event, determining the data structure and table headers.
+                             * @param {Array} paginatedData - The data for the current page, after pagination.
+                             * @param {Object} jsonData - The raw JSON data containing all alarm or event information.
+                             * @param {jQuery} tbody - The jQuery object of the table body, to which the generated rows will be appended.
+                             * @param {number} currentPage - The current page number, used for calculating row numbers.
+                             * @param {number} rowsPerPage - The number of rows per page, used for calculating row numbers.
+                             * @returns {Array} The table headers, which depend on the type of alarm or event.
+                             */
+                            function renderTableRows(Alarm_type, paginatedData, jsonData, tbody, currentPage, rowsPerPage) {
+                                let headers = [];
+                                // Determine table headers and process data based on the type of alarm or event
+                                if (Alarm_type == Alarm_Station) {
+                                    headers = ['Number', 'Alarm', 'Timestamp', 'State'];
+                                    paginatedData.forEach((item, index) => {
+                                        const rowNumber = (currentPage - 1) * rowsPerPage + index + 1;
+                                        const alarmeventName = getAlarmEventName(jsonData.station_alarms, item[1]);
+                                        const stateString = stateMapping[item[2]] || 'Unknown';
+                                        const t_row = createTableRow([rowNumber, alarmeventName, formatDateTime(item[3]), stateString]);
+                                        t_row.addClass(index % 2 === 0 ? 'even-row' : 'odd-row'); // Add class for alternating row colors
+                                        tbody.append(t_row);
+                                    });
+                                } else if (Alarm_type == Event_Station) {
+                                    headers = ['Number', 'Event', 'Timestamp', 'Value'];
+                                    paginatedData.forEach((item, index) => {
+                                        const rowNumber = (currentPage - 1) * rowsPerPage + index + 1;
+                                        const alarmeventName = getAlarmEventName(jsonData.station_events, item[1]);
+                                        const t_row = createTableRow([rowNumber, alarmeventName, formatDateTime(item[3]), item[2]]);
+                                        t_row.addClass(index % 2 === 0 ? 'even-row' : 'odd-row'); // Add class for alternating row colors
+                                        tbody.append(t_row);
+                                    });
+                                } else if (Alarm_type == Alarm_Platform) {
+                                    headers = ['Number', 'Platform ID', 'Alarm', 'Timestamp', 'State'];
+                                    paginatedData.forEach((item, index) => {
+                                        const rowNumber = (currentPage - 1) * rowsPerPage + index + 1;
+                                        const alarmeventName = getAlarmEventName(jsonData.platform_alarms, item[2]);
+                                        const stateString = stateMapping[item[3]] || 'Unknown';
+                                        const t_row = createTableRow([rowNumber, item[1], alarmeventName, formatDateTime(item[4]), stateString]);
+                                        t_row.addClass(index % 2 === 0 ? 'even-row' : 'odd-row'); // Add class for alternating row colors
+                                        tbody.append(t_row);
+                                    });
+                                } else if (Alarm_type == Event_Platform) {
+                                    headers = ['Number', 'Platform ID', 'Event', 'Timestamp', 'State'];
+                                    paginatedData.forEach((item, index) => {
+                                        const rowNumber = (currentPage - 1) * rowsPerPage + index + 1;
+                                        const alarmeventName = getAlarmEventName(jsonData.platform_events, item[2]);
+                                        const t_row = createTableRow([rowNumber, item[1], alarmeventName, formatDateTime(item[4]), item[3]]);
+                                        t_row.addClass(index % 2 === 0 ? 'even-row' : 'odd-row'); // Add class for alternating row colors
+                                        tbody.append(t_row);
+                                    });
+                                } else if (Alarm_type == Alarm_Door) {
+                                    headers = ['Number', 'Platform ID', 'Door ID', 'Dcu ID', 'Alarm', 'Timestamp', 'State'];
+                                    paginatedData.forEach((item, index) => {
+                                        const rowNumber = (currentPage - 1) * rowsPerPage + index + 1;
+                                        const alarmeventName = getAlarmEventName(jsonData.platform_alarms, item[4]);
+                                        const stateString = stateMapping[item[5]] || 'Unknown';
+                                        const t_row = createTableRow([rowNumber, item[1], item[2], item[3], alarmeventName, formatDateTime(item[6]), stateString]);
+                                        t_row.addClass(index % 2 === 0 ? 'even-row' : 'odd-row'); // Add class for alternating row colors
+                                        tbody.append(t_row);
+                                    });
+                                } else if (Alarm_type == Event_Door) {
+                                    headers = ['Number', 'Platform ID', 'Door ID', 'Dcu ID', 'Event', 'Timestamp', 'State'];
+                                    paginatedData.forEach((item, index) => {
+                                        const rowNumber = (currentPage - 1) * rowsPerPage + index + 1;
+                                        const alarmeventName = getAlarmEventName(jsonData.platform_events, item[4]);
+                                        const t_row = createTableRow([rowNumber, item[1], item[2], item[3], alarmeventName, formatDateTime(item[6]), item[3]]);
+                                        t_row.addClass(index % 2 === 0 ? 'even-row' : 'odd-row'); // Add class for alternating row colors
+                                        tbody.append(t_row);
+                                    });
+                                }
+                                return headers;
+                            }
+                            /**
+                             * Paginate data from a dataset.
+                             * 
+                             * This function extracts a subset of data for a specific page based on the current page number and the number of rows per page. 
+                             * It calculates the start and end indices to slice the appropriate segment from the dataset. 
+                             * This pagination technique is commonly used in web applications to improve performance and user experience by reducing the amount of data loaded at once.
+                             * 
+                             * @param {Array} data - The dataset to paginate.
+                             * @param {number} page - The current page number indicating which page of data to extract.
+                             * @param {number} rowsPerPage - The number of items to display per page.
+                             * @returns {Array} A subset of the dataset corresponding to the current page.
+                             */
+                            function paginateData(data, page, rowsPerPage) {
+                                // Calculate the starting index, which is the position after the last item of the previous page
+                                const start = (page - 1) * rowsPerPage;
+                                // Calculate the ending index, which is the position up to which items should be included for the current page
+                                const end = start + rowsPerPage;
+                                // Extract the current page's data segment from the dataset using the slice method
+                                return data.slice(start, end);
+                            }
+                            /**
+                             * Renders a pagination component.
+                             *
+                             * This function calculates the total number of pages based on the total number of rows and rows per page,
+                             * and generates a pagination component with buttons for each page. If a current page is specified,
+                             * it marks the corresponding button as active.
+                             *
+                             * @param {number} totalRows - The total number of rows to paginate.
+                             * @param {number} rowsPerPage - The number of rows to display per page.
+                             * @returns {jQuery} - A jQuery object containing the pagination buttons.
+                             */
+                            function renderPagination(totalRows, rowsPerPage) {
+                                // Calculate the total number of pages, ensuring correct calculation even if totalRows is not divisible by rowsPerPage
+                                const totalPages = Math.ceil(totalRows / rowsPerPage);
+
+                                // Create and style the pagination container
+                                const pagination = $('<div>').addClass('pagination').css({
+                                    justifyContent: 'center',
+                                    marginTop: '0px',
+                                    position: 'relative',
+                                    left: '50%',
+                                    transform: 'translateX(-50%)'
+                                });
+
+                                // Generate a button for each page
+                                for (let i = 1; i <= totalPages; i++) {
+                                    // Create and configure the page button, including text, styles, and data attributes
+                                    const pageButton = $('<button>').text(i).addClass('btn btn-info btn-sm page-btn').data('page', i);
+
+                                    // Mark the button as active if it corresponds to the current page
+                                    if (i === currentPage) {
+                                        pageButton.addClass('active');
+                                    }
+
+                                    // Append the page button to the pagination container
+                                    pagination.append(pageButton);
+                                }
+
+                                // Return the constructed pagination component
+                                return pagination;
+                            }
+                        }
+                    },
+                    error: function (error) {
+                        // Handle error
+                        $('#errorModalBody').text('Communication Error with backend');
+                        $('#errorModal').modal('show');
+                        return;
+                    }
+                });
+            });
         }
-      });
 
-      // Trigger initial load
-      dropdown.dispatchEvent(new Event('change'));
-
-      if (subTab !== 'platform') {
-        const doorsSelectAllId = 'select-all-platform-doors';
-        const doorsSelectAllCb = createCheckbox(doorsSelectAllId);
-        const doorsSelectAllLbl = createLabel(doorsSelectAllId, 'Select All');
-        const doorsSelectAllDiv = el('div', {}, [doorsSelectAllCb, doorsSelectAllLbl]);
-        contentEl.appendChild(doorsSelectAllDiv);
-
-        doorsSelectAllCb.addEventListener('change', function () {
-          const checked = this.checked;
-          platformDoorsContainer.querySelectorAll('input[type="checkbox"]').forEach(cb => {
-            cb.checked = checked;
-          });
-        });
-
-        contentEl.appendChild(el('hr'));
-      }
-    }
-
-    // Start Time
-    const startTimeId = 'start-time-picker';
-    const startTimeLabel = createLabel(startTimeId, 'Start Time');
-    const startTimeInput = el('input', { type: 'datetime-local', id: startTimeId });
-    const startTimeContainer = el('div', { style: { display: 'flex', justifyContent: 'space-between' } }, [startTimeLabel, startTimeInput]);
-    contentEl.appendChild(startTimeContainer);
-
-    // End Time
-    const endTimeId = 'end-time-picker';
-    const endTimeLabel = createLabel(endTimeId, 'End Time');
-    const endTimeInput = el('input', { type: 'datetime-local', id: endTimeId });
-    const endTimeContainer = el('div', { style: { display: 'flex', justifyContent: 'space-between' } }, [endTimeLabel, endTimeInput]);
-    contentEl.appendChild(endTimeContainer);
-
-    // Submit button
-    const submitBtn = el('button', { className: 'btn btn-primary', style: { marginTop: '20px' } }, 'Submit');
-    contentEl.appendChild(submitBtn);
-
-    // Remove old modal, create new one
-    const oldModal = document.getElementById('errorModal');
-    if (oldModal) oldModal.remove();
-
-    const errorModalHTML = `
-      <div class="modal fade" id="errorModal" tabindex="-1" aria-labelledby="errorModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-          <div class="modal-content">
-            <div class="modal-header">
-              <h5 class="modal-title" id="errorModalLabel">Error</h5>
-              <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-            </div>
-            <div class="modal-body" id="errorModalBody"></div>
-            <div class="modal-footer">
-              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-            </div>
-          </div>
-        </div>
-      </div>`;
-    document.body.insertAdjacentHTML('beforeend', errorModalHTML);
-
-    // Submit handler
-    submitBtn.addEventListener('click', function (e) {
-      e.preventDefault();
-      window.scrollTo({ top: 0, behavior: 'auto' });
-
-      const activeMainLink = navTabs.querySelector('.nav-link.active, li.active .nav-link');
-      if (!activeMainLink) return;
-      const currentTab = activeMainLink.getAttribute('href').substring(1);
-
-      const subTabsNav = currentTab === 'alarm' ? alarmSubTabs.subNavTabs : eventSubTabs.subNavTabs;
-      const activeSubLink = subTabsNav.querySelector('.nav-link.active, li.active .nav-link');
-      if (!activeSubLink) return;
-      const rawSubTabHref = activeSubLink.getAttribute('href').substring(1);
-      const currentSubTab = rawSubTabHref.includes('-') ? rawSubTabHref.split('-')[1] : rawSubTabHref;
-
-      const selectedPlatform = contentEl.querySelector('select');
-      const platformVal = selectedPlatform ? selectedPlatform.value : null;
-
-      const stInput = contentEl.querySelector('#start-time-picker');
-      const etInput = contentEl.querySelector('#end-time-picker');
-      const startTime = stInput ? stInput.value : '';
-      const endTime = etInput ? etInput.value : '';
-
-      const modalBody = document.getElementById('errorModalBody');
-      const errorModalEl = document.getElementById('errorModal');
-      const showError = (msg) => {
-        if (modalBody) modalBody.textContent = msg;
-        if (errorModalEl) {
-          const bsModal = bootstrap.Modal.getOrCreateInstance(errorModalEl);
-          bsModal.show();
+        /**
+         * Retrieves items based on the provided tab and subTab parameters.
+         *
+         * @param {string} tab - The main category tab ('alarm' or 'event').
+         * @param {string} subTab - The sub-category tab ('station', 'platform', or 'door').
+         * @param {Object} data - An object containing different categories of data arrays.
+         *
+         * @returns {Array} - Returns the corresponding data array based on the tab and subTab combination. 
+         *                    If no match is found, an empty array is returned.
+         */
+        function getItems(tab, subTab, data) {
+            // Determine which data array to return based on the tab and subTab combination
+            if (tab === 'alarm' && subTab === 'station') {
+                return data.station_alarms;
+            } else if (tab === 'event' && subTab === 'station') {
+                return data.station_events;
+            } else if (tab === 'alarm' && subTab === 'platform') {
+                return data.platform_alarms;
+            } else if (tab === 'event' && subTab === 'platform') {
+                return data.platform_events;
+            } else if (tab === 'alarm' && subTab === 'door') {
+                return data.door_alarms;
+            } else if (tab === 'event' && subTab === 'door') {
+                return data.door_events;
+            }
+            // Return an empty array if no matching tab and subTab combination is found
+            return [];
         }
-      };
 
-      if (!startTime || !endTime) {
-        showError('Start Time and End Time cannot be empty.');
-        return;
-      }
-      if (new Date(endTime) <= new Date(startTime)) {
-        showError('End Time must be larger than Start Time.');
-        return;
-      }
-
-      const selectedItems = [];
-      contentEl.querySelectorAll('.alarm-container input[type="checkbox"]').forEach(cb => {
-        if (cb.checked) selectedItems.push(parseInt(cb.id));
-      });
-      if (selectedItems.length === 0) {
-        showError('No items selected.');
-        return;
-      }
-
-      const selectedDoors = [];
-      const alarmType = parseInt(getAlarmType(currentTab, currentSubTab));
-      if (alarmType === Alarm_Door || alarmType === Event_Door) {
-        contentEl.querySelectorAll('.platform-doors-container input[type="checkbox"]').forEach(cb => {
-          if (cb.checked) selectedDoors.push(parseInt(cb.id));
-        });
-        if (selectedDoors.length === 0) {
-          showError('No doors selected.');
-          return;
+        /**
+         * Retrieves the alarm or event type array based on the provided tab and subTab parameters.
+         *
+         * @param {string} tab - The main category tab, indicating whether it's an 'alarm' or 'event'.
+         * @param {string} subTab - The sub-category tab, specifying the context such as 'station', 'platform', or 'door'.
+         * @returns {Array} - Returns the corresponding alarm or event type array. If no match is found, returns an empty array.
+         */
+        function getAlarm_type(tab, subTab) {
+            // Return the alarm type array for station if both tab and subTab match 'alarm' and 'station'
+            if (tab === 'alarm' && subTab === 'station') {
+                return Alarm_Station;
+            }
+            // Return the event type array for station if both tab and subTab match 'event' and 'station'
+            else if (tab === 'event' && subTab === 'station') {
+                return Event_Station;
+            }
+            // Return the alarm type array for platform if both tab and subTab match 'alarm' and 'platform'
+            else if (tab === 'alarm' && subTab === 'platform') {
+                return Alarm_Platform;
+            }
+            // Return the event type array for platform if both tab and subTab match 'event' and 'platform'
+            else if (tab === 'event' && subTab === 'platform') {
+                return Event_Platform;
+            }
+            // Return the alarm type array for door if both tab and subTab match 'alarm' and 'door'
+            else if (tab === 'alarm' && subTab === 'door') {
+                return Alarm_Door;
+            }
+            // Return the event type array for door if both tab and subTab match 'event' and 'door'
+            else if (tab === 'event' && subTab === 'door') {
+                return Event_Door;
+            }
+            // Return an empty array if no matching tab and subTab combination is found
+            return [];
         }
-      }
 
-      // AJAX → fetch
-      const params = new URLSearchParams({
-        Alarm_type: alarmType,
-        selectedAlarmItems: selectedItems.join(','),
-        selectedPlatform: platformVal || '',
-        selectedPlatformDoors: selectedDoors.join(','),
-        startTime,
-        endTime,
-      });
-
-      AppUtils.fetchWithTimeout(`http://127.0.0.1:8080/alarm_data?${params.toString()}`, { timeout: 10000 })
-        .then((ajaxData) => {
-          // Re-load local JSON for name mapping
-          return AppUtils.fetchJSON('data.json').then((jsonData) => ({ ajaxData, jsonData }));
-        })
-        .then(({ ajaxData, jsonData }) => {
-          renderTable(ajaxData, jsonData, alarmType);
-        })
-        .catch((err) => {
-          console.error('[AlarmData] Fetch error:', err);
-          showError('Communication Error with backend');
-        });
-    });
-  }
-
-  // ====================================================================
-  //  Table rendering
-  // ====================================================================
-  function renderTable(data, jsonData, alarmType) {
-    let currentPage = 1;
-
-    function doRender() {
-      while (tableContainer.firstChild) {
-        tableContainer.removeChild(tableContainer.firstChild);
-      }
-
-      const paginatedData = paginateData(data, currentPage, ROWS_PER_PAGE);
-      const { headers, tbody } = buildTableRows(alarmType, paginatedData, jsonData, currentPage);
-      const table = el('table', { className: 'table table-bordered' });
-
-      // Header
-      const thead = el('thead');
-      const headerRow = el('tr');
-      headers.forEach(h => headerRow.appendChild(el('th', {}, h)));
-      thead.appendChild(headerRow);
-      table.appendChild(thead);
-      table.appendChild(tbody);
-      tableContainer.appendChild(table);
-
-      // Pagination
-      const totalPages = Math.ceil(data.length / ROWS_PER_PAGE);
-      const paginationDiv = el('div', { className: 'pagination', style: { justifyContent: 'center', marginTop: '0px' } });
-      for (let i = 1; i <= totalPages; i++) {
-        const btn = el('button', { className: `btn btn-info btn-sm page-btn${i === currentPage ? ' active' : ''}` }, String(i));
-        btn.addEventListener('click', () => {
-          window.scrollTo({ top: 0, behavior: 'auto' });
-          currentPage = i;
-          doRender();
-        });
-        paginationDiv.appendChild(btn);
-      }
-      tableContainer.appendChild(paginationDiv);
-    }
-
-    doRender();
-  }
-
-  function paginateData(data, page, rowsPerPage) {
-    const start = (page - 1) * rowsPerPage;
-    return data.slice(start, start + rowsPerPage);
-  }
-
-  function buildTableRows(alarmType, paginatedData, jsonData, currentPage) {
-    let headers = [];
-    const tbody = el('tbody');
-
-    paginatedData.forEach((item, index) => {
-      const rowNum = (currentPage - 1) * ROWS_PER_PAGE + index + 1;
-      let cells = [];
-
-      if (alarmType === Alarm_Station) {
-        headers = ['Number', 'Alarm', 'Timestamp', 'State'];
-        const name = getAlarmEventName(jsonData.station_alarms, item[1]);
-        const state = STATE_MAPPING[item[2]] || 'Unknown';
-        cells = [rowNum, name, formatDateTime(item[3]), state];
-      } else if (alarmType === Event_Station) {
-        headers = ['Number', 'Event', 'Timestamp', 'Value'];
-        const name = getAlarmEventName(jsonData.station_events, item[1]);
-        cells = [rowNum, name, formatDateTime(item[3]), item[2]];
-      } else if (alarmType === Alarm_Platform) {
-        headers = ['Number', 'Platform ID', 'Alarm', 'Timestamp', 'State'];
-        const name = getAlarmEventName(jsonData.platform_alarms, item[2]);
-        const state = STATE_MAPPING[item[3]] || 'Unknown';
-        cells = [rowNum, item[1], name, formatDateTime(item[4]), state];
-      } else if (alarmType === Event_Platform) {
-        headers = ['Number', 'Platform ID', 'Event', 'Timestamp', 'State'];
-        const name = getAlarmEventName(jsonData.platform_events, item[2]);
-        cells = [rowNum, item[1], name, formatDateTime(item[4]), item[3]];
-      } else if (alarmType === Alarm_Door) {
-        headers = ['Number', 'Platform ID', 'Door ID', 'Dcu ID', 'Alarm', 'Timestamp', 'State'];
-        const name = getAlarmEventName(jsonData.platform_alarms, item[4]);
-        const state = STATE_MAPPING[item[5]] || 'Unknown';
-        cells = [rowNum, item[1], item[2], item[3], name, formatDateTime(item[6]), state];
-      } else if (alarmType === Event_Door) {
-        headers = ['Number', 'Platform ID', 'Door ID', 'Dcu ID', 'Event', 'Timestamp', 'State'];
-        const name = getAlarmEventName(jsonData.platform_events, item[4]);
-        cells = [rowNum, item[1], item[2], item[3], name, formatDateTime(item[6]), item[3]];
-      }
-
-      const row = el('tr', { className: index % 2 === 0 ? 'even-row' : 'odd-row' });
-      cells.forEach(c => row.appendChild(el('td', {}, String(c))));
-      tbody.appendChild(row);
-    });
-
-    return { headers, tbody };
-  }
-
-  function formatDateTime(dateTime) {
-    const date = new Date(dateTime);
-    const d = date.toLocaleDateString(undefined, { month: '2-digit', day: '2-digit' });
-    const t = date.toLocaleTimeString(undefined, { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: false });
-    const ms = String(date.getMilliseconds()).padStart(3, '0');
-    return `${d} ${t}.${ms}`;
-  }
-
-  function getAlarmEventName(alarmEvents, id) {
-    let name = id;
-    if (alarmEvents) {
-      alarmEvents.forEach(alarm => {
-        if (alarm.id === id) name = alarm.name;
-      });
-    }
-    return name;
-  }
-
-  // ====================================================================
-  //  Tab event handlers
-  // ====================================================================
-  function createSubTabs(prefix) {
-    const subNavTabs = el('ul', { className: 'nav nav-tabs' });
-    const subTabContent = el('div', { className: 'tab-content' });
-
-    const tabs = [
-      { id: 'station', text: 'Station' },
-      { id: 'platform', text: 'Platform' },
-      { id: 'door', text: 'Door' },
-    ];
-
-    tabs.forEach((tab, idx) => {
-      const isActive = idx === 0;
-      const fullId = `${prefix}-${tab.id}`;
-
-      const tabItem = el('li', { className: `nav-item${isActive ? ' active' : ''}` });
-      const link = el('a', {
-        className: 'nav-link',
-        href: `#${fullId}`,
-        'data-bs-toggle': 'tab',
-      }, tab.text);
-      tabItem.appendChild(link);
-      subNavTabs.appendChild(tabItem);
-
-      const contentPane = el('div', {
-        id: fullId,
-        className: `tab-pane${isActive ? ' active' : ''}`,
-      });
-      subTabContent.appendChild(contentPane);
-    });
-
-    return { subNavTabs, subTabContent };
-  }
-
-  function handleMainTabClick(e) {
-    while (tableContainer.firstChild) tableContainer.removeChild(tableContainer.firstChild);
-
-    const clickedLink = this; // 'this' bound via event delegation
-    const tab = clickedLink.getAttribute('href').substring(1);
-    const otherGroup = tab === 'alarm' ? 'event' : 'alarm';
-
-    // Reset other group silently (no BS5 events)
-    const otherSubTabs = otherGroup === 'alarm' ? alarmSubTabs : eventSubTabs;
-    otherSubTabs.subNavTabs.querySelectorAll('.nav-link.active').forEach(a => a.classList.remove('active'));
-    otherSubTabs.subNavTabs.querySelectorAll('li.active').forEach(li => li.classList.remove('active'));
-    const otherFirstLi = otherSubTabs.subNavTabs.querySelector('li:first-child');
-    const otherFirstA = otherFirstLi ? otherFirstLi.querySelector('.nav-link') : null;
-    if (otherFirstLi) otherFirstLi.classList.add('active');
-    if (otherFirstA) otherFirstA.classList.add('active');
-
-    // Get current group active sub-tab
-    const subTabsNav = tab === 'alarm' ? alarmSubTabs.subNavTabs : eventSubTabs.subNavTabs;
-    const activeLink = subTabsNav.querySelector('.nav-link.active, li.active .nav-link');
-    if (!activeLink) return;
-    const rawSubTab = activeLink.getAttribute('href').substring(1);
-    const subTab = rawSubTab.split('-')[1];
-
-    const subTabContent = tab === 'alarm' ? alarmSubTabs.subTabContent : eventSubTabs.subTabContent;
-    const contentEl = subTabContent.querySelector(`#${rawSubTab}`);
-    if (!contentEl) return;
-    contentEl.classList.add('active');
-    updateContent(tab, subTab, contentEl);
-  }
-
-  function handleSubTabClick(e) {
-    while (tableContainer.firstChild) tableContainer.removeChild(tableContainer.firstChild);
-
-    const rawHref = this.getAttribute('href').substring(1);
-    const tab = rawHref.startsWith('alarm-') ? 'alarm' : 'event';
-    const subTab = rawHref.split('-')[1];
-
-    const subTabContent = tab === 'alarm' ? alarmSubTabs.subTabContent : eventSubTabs.subTabContent;
-    const contentEl = subTabContent.querySelector(`#${rawHref}`);
-    if (!contentEl) return;
-    contentEl.classList.add('active');
-    updateContent(tab, subTab, contentEl);
-  }
-
-  // ====================================================================
-  //  Initialization
-  // ====================================================================
-  function init() {
-    // Cache DOM
-    mainDiv = document.querySelector('.main');
-    if (!mainDiv) { console.error('[AlarmData] .main not found'); return; }
-
-    // Build structure
-    const rowDiv = el('div', { className: 'row' });
-    const fieldset = el('fieldset', {
-      className: 'col-md-10',
-      style: { padding: '20px', marginTop: '20px', width: '100%' },
-    });
-    const alarmContainerEl = el('div', {
-      id: 'alarm-container',
-      className: 'container-fluid',
-      style: { border: '1px solid #ccc', borderRadius: '10px', padding: '20px', boxShadow: '0 4px 8px rgba(0,0,0,0.1)', height: 'auto' },
-    });
-    const legend = el('legend', {}, 'Alarm and Event View');
-    fieldset.appendChild(legend);
-    fieldset.appendChild(alarmContainerEl);
-
-    tabContainer = el('div', {
-      className: 'col-md-3 tab-container-main',
-      style: { float: 'right', border: '1px solid #ccc', padding: '10px' },
-    });
-    tableContainer = el('div', {
-      className: 'col-md-9',
-      style: { float: 'left', border: '1px solid #ccc', padding: '10px' },
-    });
-
-    // Main nav-tabs (Alarm/Event)
-    navTabs = el('ul', { className: 'nav nav-tabs' });
-    const alarmLi = el('li', { className: 'nav-item active' });
-    const alarmA = el('a', { className: 'nav-link', href: '#alarm', 'data-bs-toggle': 'tab' }, 'Alarm');
-    alarmLi.appendChild(alarmA);
-    navTabs.appendChild(alarmLi);
-
-    const eventLi = el('li', { className: 'nav-item' });
-    const eventA = el('a', { className: 'nav-link', href: '#event', 'data-bs-toggle': 'tab' }, 'Event');
-    eventLi.appendChild(eventA);
-    navTabs.appendChild(eventLi);
-
-    // Tab content
-    tabContent = el('div', { className: 'tab-content' });
-    alarmContent = el('div', { id: 'alarm', className: 'tab-pane active tab-group-alarm' });
-    eventContent = el('div', { id: 'event', className: 'tab-pane tab-group-event' });
-
-    alarmSubTabs = createSubTabs('alarm');
-    alarmContent.appendChild(alarmSubTabs.subNavTabs);
-    alarmContent.appendChild(alarmSubTabs.subTabContent);
-
-    eventSubTabs = createSubTabs('event');
-    eventContent.appendChild(eventSubTabs.subNavTabs);
-    eventContent.appendChild(eventSubTabs.subTabContent);
-
-    tabContent.appendChild(alarmContent);
-    tabContent.appendChild(eventContent);
-
-    tabContainer.appendChild(navTabs);
-    tabContainer.appendChild(tabContent);
-
-    alarmContainerEl.appendChild(tableContainer);
-    alarmContainerEl.appendChild(tabContainer);
-
-    rowDiv.appendChild(fieldset);
-    mainDiv.appendChild(rowDiv);
-
-    // BS5 native tab events — scoped delegation
-    tabContainer.addEventListener('shown.bs.tab', (e) => {
-      const target = e.target.closest('a[data-bs-toggle="tab"]');
-      if (!target) return;
-      const href = target.getAttribute('href');
-      if (href === '#alarm' || href === '#event') {
-        handleMainTabClick.call(target, e);
-      }
-    });
-
-    alarmContent.addEventListener('shown.bs.tab', (e) => {
-      const target = e.target.closest('a[data-bs-toggle="tab"][href$="-station"], a[data-bs-toggle="tab"][href$="-platform"], a[data-bs-toggle="tab"][href$="-door"]');
-      if (target) handleSubTabClick.call(target, e);
-    });
-
-    eventContent.addEventListener('shown.bs.tab', (e) => {
-      const target = e.target.closest('a[data-bs-toggle="tab"][href$="-station"], a[data-bs-toggle="tab"][href$="-platform"], a[data-bs-toggle="tab"][href$="-door"]');
-      if (target) handleSubTabClick.call(target, e);
-    });
-
-    // Load data & render initial content
-    AppUtils.fetchJSON('data.json')
-      .then((data) => {
-        dataCache = data;
-        const initialContent = alarmSubTabs.subTabContent.querySelector('#alarm-station');
-        if (initialContent) {
-          updateContent('alarm', 'station', initialContent);
+        /**
+         * Creates a checkbox input element with the specified ID and applies custom styles.
+         * 
+         * @param {string} id - The unique identifier for the checkbox.
+         * @returns {jQuery} A jQuery object containing the newly created checkbox element.
+         */
+        function createCheckbox(id) {
+            return $('<input>').attr('type', 'checkbox').attr('id', id).css({
+                'margin-right': '5px',
+                'width': '13px',
+                'height': '13px'
+            });
         }
-      })
-      .catch((err) => console.error('[AlarmData] Failed to load data.json:', err));
-  }
 
-  // Auto-init on DOM ready
-  if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', init);
-  } else {
-    init();
-  }
+        function createLabel(forId, text) {
+            return $('<label>').attr('for', forId).text(text).css('margin-top', '5px');
+        }
 
-  return { init };
-})();
+        function setActiveTab($tabNav, $link) {
+            $tabNav.children('.nav-item').removeClass('active')
+                .children('.nav-link').removeClass('active').attr('aria-selected', 'false');
+            $link.closest('.nav-item').addClass('active');
+            $link.addClass('active').attr('aria-selected', 'true');
+        }
+
+        function deactivateSubTabs(subTabs) {
+            subTabs.subNavTabs.children('.nav-item').removeClass('active')
+                .children('.nav-link').removeClass('active').attr('aria-selected', 'false');
+            subTabs.subTabContent.children('.tab-pane').removeClass('active show');
+        }
+
+        function activateSubTab(subTabs, $link) {
+            const $targetLink = $link && $link.length
+                ? $link
+                : subTabs.subNavTabs.children('.nav-item').first().children('.nav-link');
+            const contentId = $targetLink.attr('href').substring(1);
+
+            setActiveTab(subTabs.subNavTabs, $targetLink);
+            subTabs.subTabContent.children('.tab-pane').removeClass('active show');
+            subTabs.subTabContent.children(`#${contentId}`).addClass('active show');
+
+            return {
+                subTab: contentId.split('-')[1],
+                content: subTabs.subTabContent.children(`#${contentId}`)
+            };
+        }
+
+        function handleTabClick(e) {
+            tableContainer.empty();
+            const $clickedLink = $(this);
+            const tab = $clickedLink.attr('href').substring(1); // "alarm" or "event"
+            const currentSubTabs = tab === 'alarm' ? alarmSubTabs : eventSubTabs;
+            const inactiveSubTabs = tab === 'alarm' ? eventSubTabs : alarmSubTabs;
+
+            setActiveTab(navTabs, $clickedLink);
+            deactivateSubTabs(inactiveSubTabs);
+            const activeSubTab = activateSubTab(currentSubTabs);
+            updateContent(tab, activeSubTab.subTab, activeSubTab.content);
+        }
+
+        function handleSubTabClick(e) {
+            tableContainer.empty();
+            const $clickedLink = $(this);
+            const rawHref = $clickedLink.attr('href').substring(1); // "alarm-station" or "event-door"
+            const tab = rawHref.startsWith('alarm-') ? 'alarm' : 'event';
+            const subTabs = tab === 'alarm' ? alarmSubTabs : eventSubTabs;
+            const activeSubTab = activateSubTab(subTabs, $clickedLink);
+            updateContent(tab, activeSubTab.subTab, activeSubTab.content);
+        }
+
+        // Handle main tab click events — scoped to main nav-tabs container only
+        tabContainer.on('shown.bs.tab', 'a[data-bs-toggle="tab"][href="#alarm"], a[data-bs-toggle="tab"][href="#event"]', handleTabClick);
+
+        // Handle sub-tab click events — scoped to each parent tab group (COMPLETELY ISOLATED)
+        alarmContent.on('shown.bs.tab', 'a[data-bs-toggle="tab"][href$="-station"], a[data-bs-toggle="tab"][href$="-platform"], a[data-bs-toggle="tab"][href$="-door"]', handleSubTabClick);
+        eventContent.on('shown.bs.tab', 'a[data-bs-toggle="tab"][href$="-station"], a[data-bs-toggle="tab"][href$="-platform"], a[data-bs-toggle="tab"][href$="-door"]', handleSubTabClick);
+
+        // Initial state: Alarm is selected; Event has no residual active sub-tab.
+        const initialAlarmSubTab = activateSubTab(alarmSubTabs);
+        deactivateSubTabs(eventSubTabs);
+        updateContent('alarm', initialAlarmSubTab.subTab, initialAlarmSubTab.content);
+    });
+});

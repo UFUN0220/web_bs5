@@ -26,13 +26,15 @@
                     <img src="img/faiveley.gif" alt="Faiveley Transport" width="151" height="45">
                 </a>
 
-                <!-- Center: Title -->
+                <!-- Center: Title (positioned absolutely for true centering) -->
                 <span class="navbar-brand d-none d-sm-block position-absolute start-50 translate-middle-x" style="font-size: 20pt; font-weight: bold; color: #555;">
                     Wabtec MMS System
                 </span>
 
+                <!-- Spacer to push right items -->
                 <div class="flex-grow-1 d-sm-none"></div>
 
+                <!-- Connection status -->
                 <span class="d-none d-sm-flex align-items-center me-2">
                     <input type='text' id="connectStatus" disabled='disabled' size='4px' style="border-style:none; background: transparent;" value=''/>
                 </span>
@@ -57,6 +59,7 @@
 
         <div class="container-fluid">
             <div class="row">
+                <!-- Left sidebar: pure white background, blue links -->
                 <div class="col-sm-3 col-md-2 sidebar">
                     <ul class="nav nav-sidebar flex-column">
                         <li id="General_View" class="nav-item"><a data-localize="NavSidebar.General_View" class="nav-link sidebar-link" href="general_view.htm">General View</a></li>
@@ -76,17 +79,16 @@
                         <li id="Software" class="nav-item"><a data-localize="NavSidebar.Software" class="nav-link sidebar-link" href="Software.htm">SoftwareUpgrade</a></li>
                     </ul>
                 </div>
+                <!-- Right main content area -->
                 <div class="col-sm-9 offset-sm-3 col-md-10 offset-md-2 main">
-                    <h3 data-localize="IO.TitleIO" class="sub-header">Dcu View</h3>
-
+                    <h3 data-localize="NavSidebar.Process" class="sub-header">Process Data</h3>
+                    <p class="text-muted mt-3">Process Data — placeholder page</p>
                 </div>
             </div>
         </div>
-        <script src="bin/gauge.min.js"></script>
         <script src="bin/jquery.js"></script>
+        <script src="bin/bootstrap.min.js"></script>
         <script src="bin/jquery.localize.min.js"></script>
         <script src="bin/language_cookie.js"></script>
-        <script src="bin/bootstrap.min.js"></script>
-        <script src="bin/dcu_view.js"></script>
     </body>
 </html>
