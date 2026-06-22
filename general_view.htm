@@ -87,24 +87,10 @@
                 </div>
             </div>
         </div>
-        <script src="bin/jquery.js"></script>
+        <script src="bin/utils.js"></script>
+        <script src="bin/language_cookie.js"></script>
         <script src="bin/bootstrap.min.js"></script>
         <script src="bin/general_page.js"></script>
-        <script src="bin/jquery.localize.min.js"></script>
-        <script src="bin/language_cookie.js"></script>
-
-        <script>
-            $(document).ready(function() {
-                $('#toggle-led').click(function() {
-                    const ledId = $(this).data('led-id');
-                    const ledStatus = $(this).data('led-status');
-                    updateLedStatusById(ledId, ledStatus);
-
-                    const newStatus = ledStatus === 'on' ? 'off' : 'on';
-                    $(this).data('led-status', newStatus);
-                });
-            });
-        </script>
-        <script>setInterval("getDevinfo()",3000); </script>
+        <script>setInterval(getDevinfo, 3000);</script>
     </body>
 </html>

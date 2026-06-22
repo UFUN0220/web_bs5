@@ -54,8 +54,7 @@
     <!-- Bootstrap 5 core JavaScript
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
-    <script src="bin/jquery.min.js"></script>
-    <script src="bin/jquery.localize.min.js"></script>
+    <script src="bin/utils.js"></script>
     <script src="bin/language_cookie.js"></script>
     <script src="bin/bootstrap.min.js"></script>
     <script src="bin/device.js"></script>
@@ -69,7 +68,7 @@
 //  window.onload = RemoveSessionUserID();
  // GetUserAccessLevel();
 
-    $(window).on('load',function() {
+    window.addEventListener('load', function() {
             RemoveSessionUserID();
       //      GetUserAccessLevel();
             ClearUserID();
@@ -78,19 +77,15 @@
 
 function ClearUserID(){
 
- $.ajax({
-        type: "POST",
-        url: 'login.cgi',
-        contentType: "application/json; charset=utf-8",
-        datatype:'json',
-        data:JSON.stringify({
-                "u" :"user",
-                "username" :"null",
-                "password" :"null",
+ fetch('login.cgi', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json; charset=utf-8' },
+        body: JSON.stringify({
+                "u": "user",
+                "username": "null",
+                "password": "null",
             }),
-             success: function (data) { },
-    });
-
+    }).then(function () { }).catch(function () { });
 
  }
 
@@ -103,13 +98,12 @@ function ClearUserID(){
     }
 
 
- $("#btnSend").click(function(){
+ document.getElementById("btnSend").addEventListener("click", function(){
 
 
 
-            var username = document.getElementById("inputName").value;
-            var password = document.getElementById("inputPassword").value;
-            var ajaxobj;
+            const username = document.getElementById("inputName").value;
+            const password = document.getElementById("inputPassword").value;
 //if(!pass_chk(password)) return
 
 // ===== TEST BYPASS: skip login API, redirect directly =====
@@ -117,17 +111,17 @@ function ClearUserID(){
             return;
 // ===== END TEST BYPASS =====
 
-        $.ajax({
-        type: "POST",
-        url: 'login.cgi',
-        contentType: "application/json; charset=utf-8",
-        data:JSON.stringify({
-                "u" :"user",
-                "username" :username,
-                "password" : password,
+        fetch('login.cgi', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json; charset=utf-8' },
+            body: JSON.stringify({
+                "u": "user",
+                "username": username,
+                "password": password,
             }),
-        dataType: 'json',
-        success: function (data) {
+        })
+        .then(response => response.json())
+        .then(function (data) {
          if (data["LoginActiveFlag"] == 1)
          {
           if(data["IsPasswdDefault"] == 1)
@@ -155,11 +149,11 @@ function ClearUserID(){
 
         }
 
-        },
-        error: function (message) {
-            $("#request-process-patent").html("data update fail");
-        }
-    });
+        })
+        .catch(function (message) {
+            const el = document.getElementById("request-process-patent");
+            if (el) el.innerHTML = "data update fail";
+        });
 
 });
 
@@ -185,29 +179,26 @@ function pass(){
 
 
  function pass_chk(o) {
-    var len = o.length;
-    var pattern = /^.*(?=.{8,})(?=.*\d)(?=.*[A-Z])(?=.*[a-z])(?=.*[!@#$%^&*? ]).*$/; // Regular expression
-if(len <= 8){
+    const len = o.length;
+    const pattern = /^.*(?=.{8,})(?=.*\d)(?=.*[A-Z])(?=.*[a-z])(?=.*[!@#$%^&*? ]).*$/;
+    const msgEl = document.querySelector('.msg');
+    if(len <= 8){
     if(!pattern.test(o.value)) {
-        //alert('Length size is 8 and only contain [A-Z][a-z][!@#$%^&*? ]');
-       // o.innerHTML="ength size is 8 and only contain [A-Z][a-z][!@#$%^&*? ]";
-        $('.msg').html('Length size is 8 and  contain [A-Z][a-z][!@#$%^&*? ]');
-    //	o.value = o.value.substring(0, (o.value.length-1));
+        if (msgEl) msgEl.innerHTML = 'Length size is 8 and  contain [A-Z][a-z][!@#$%^&*? ]';
        return false;
     }
     else
     {
-     $('.msg').hide();
+     if (msgEl) msgEl.style.display = 'none';
       return true;
     }
   }
 
-  // if(len > 8) {
   else{
-
-    //	o.value = o.value.substring(0, 8);
-   $('.msg').html('Length max size is 8');
-   $('.msg').show();
+   if (msgEl) {
+     msgEl.innerHTML = 'Length max size is 8';
+     msgEl.style.display = 'block';
+   }
     }
  }
 
