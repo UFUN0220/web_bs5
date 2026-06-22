@@ -1,6 +1,6 @@
 
 # README.md
-## 项目概述
+## v0.0
 本仓库基于 Bootstrap 3（BS3）进行迭代升级，聚焦兼容性增强、功能扩展、性能优化及开发体验提升，在保留 BS3 核心易用性的基础上，解决历史痛点并适配现代开发场景。
 
 ## 核心更新内容
@@ -70,6 +70,7 @@ npm run build
 - 新功能默认不影响原有逻辑，可按需开启。
 
 # Wabtec MMS Web — BS5 原生化升级说明
+## v0.1
 
 本项目已完成从 **Bootstrap 3 + jQuery** 到 **Bootstrap 5 + 原生 ES6 / Fetch** 的前端升级。业务页面不再加载、调用或依赖 jQuery；DOM、事件、请求、分页、本地化与 Bootstrap 组件均采用标准浏览器 API 或项目公共库。
 
