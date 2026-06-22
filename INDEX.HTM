@@ -51,14 +51,16 @@
       </form>
 
     </div> <!-- /container -->
+    <!-- Native DOM utility library -->
+    <script src="js/dom-utils.js"></script>
+    <script src="js/common-business.js"></script>
+
     <!-- Bootstrap 5 core JavaScript
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
-    <script src="bin/jquery.min.js"></script>
-    <script src="bin/jquery.localize.min.js"></script>
     <script src="bin/language_cookie.js"></script>
     <script src="bin/bootstrap.min.js"></script>
-    <script src="bin/device.js"></script>
+    <script src="bin/session.js"></script>
 
 
 
@@ -69,27 +71,20 @@
 //  window.onload = RemoveSessionUserID();
  // GetUserAccessLevel();
 
-    $(window).on('load',function() {
+    document.addEventListener('DOMContentLoaded', () => {
             RemoveSessionUserID();
       //      GetUserAccessLevel();
             ClearUserID();
-     });
+     }, { once: true });
 
 
 function ClearUserID(){
 
- $.ajax({
-        type: "POST",
-        url: 'login.cgi',
-        contentType: "application/json; charset=utf-8",
-        datatype:'json',
-        data:JSON.stringify({
+ $fetchPost('login.cgi', {
                 "u" :"user",
                 "username" :"null",
                 "password" :"null",
-            }),
-             success: function (data) { },
-    });
+            }).catch(() => {});
 
 
  }
@@ -103,7 +98,7 @@ function ClearUserID(){
     }
 
 
- $("#btnSend").click(function(){
+ document.getElementById('btnSend').addEventListener('click', () => {
 
 
 
@@ -117,17 +112,11 @@ function ClearUserID(){
             return;
 // ===== END TEST BYPASS =====
 
-        $.ajax({
-        type: "POST",
-        url: 'login.cgi',
-        contentType: "application/json; charset=utf-8",
-        data:JSON.stringify({
+        $fetchPost('login.cgi', {
                 "u" :"user",
                 "username" :username,
                 "password" : password,
-            }),
-        dataType: 'json',
-        success: function (data) {
+            }).then(data => {
          if (data["LoginActiveFlag"] == 1)
          {
           if(data["IsPasswdDefault"] == 1)
@@ -155,11 +144,10 @@ function ClearUserID(){
 
         }
 
-        },
-        error: function (message) {
-            $("#request-process-patent").html("data update fail");
-        }
-    });
+        }).catch(() => {
+            const requestStatus = document.getElementById('request-process-patent');
+            if (requestStatus) requestStatus.textContent = 'data update fail';
+        });
 
 });
 
@@ -191,13 +179,13 @@ if(len <= 8){
     if(!pattern.test(o.value)) {
         //alert('Length size is 8 and only contain [A-Z][a-z][!@#$%^&*? ]');
        // o.innerHTML="ength size is 8 and only contain [A-Z][a-z][!@#$%^&*? ]";
-        $('.msg').html('Length size is 8 and  contain [A-Z][a-z][!@#$%^&*? ]');
+        document.querySelectorAll('.msg').forEach(element => { element.textContent = 'Length size is 8 and  contain [A-Z][a-z][!@#$%^&*? ]'; });
     //	o.value = o.value.substring(0, (o.value.length-1));
        return false;
     }
     else
     {
-     $('.msg').hide();
+     document.querySelectorAll('.msg').forEach(element => { element.style.display = 'none'; });
       return true;
     }
   }
@@ -206,8 +194,7 @@ if(len <= 8){
   else{
 
     //	o.value = o.value.substring(0, 8);
-   $('.msg').html('Length max size is 8');
-   $('.msg').show();
+   document.querySelectorAll('.msg').forEach(element => { element.textContent = 'Length max size is 8'; element.style.display = ''; });
     }
  }
 

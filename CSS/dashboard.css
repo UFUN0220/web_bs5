@@ -1,3 +1,24 @@
+:root {
+  --mms-navbar-background: var(--bs-tertiary-bg);
+  --mms-navbar-border: var(--bs-primary);
+  --mms-title-color: var(--bs-secondary-color);
+  --mms-panel-border: var(--bs-border-color);
+  --mms-panel-radius: var(--bs-border-radius-lg);
+  --mms-base-space: 1rem;
+  --mms-control-size: .8125rem;
+  --mms-panel-padding: var(--mms-base-space);
+  --mms-panel-shadow: var(--bs-box-shadow-sm);
+  --mms-station-background: var(--bs-danger-bg-subtle);
+  --mms-platform-background: var(--bs-primary-bg-subtle);
+  --mms-led-on: var(--bs-success);
+  --mms-led-off: var(--bs-secondary-bg);
+  --mms-led-border: var(--bs-dark);
+  --mms-space-xs: calc(var(--mms-base-space) * .25);
+  --mms-space-sm: calc(var(--mms-base-space) * .5);
+  --mms-space-md: var(--mms-base-space);
+  --mms-space-lg: calc(var(--mms-base-space) * 1.5);
+}
+
 /*
  * Base structure
  */

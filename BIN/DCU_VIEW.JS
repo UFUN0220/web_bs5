@@ -22,8 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const dcuNumber = urlParams.get('dcu_number');
     
     // Fetch platform_number and platform doors from data.json
-    fetch('data.json')
-        .then(response => response.json())
+    $fetchGet('data.json')
         .then(data => {
             initializeSelect1(data, colDiv2.select, platformIndex, dcuNumber, colDiv3.select);
         })
@@ -77,24 +76,20 @@ document.addEventListener('DOMContentLoaded', () => {
         ledRowDiv.appendChild(containerDiv);
     }
     
-    $('<canvas>', {
-        'id':'dcuVoltageGauge',
-        'data-type': 'radial-gauge',
-        'data-width': '250',
-        'data-height': '250',
-        'data-units': 'volt',
-        'data-title' : 'dcu voltage',
-        'data-min-value' : '0',
-        'data-max-value' : '220',
-        'data-major-ticks' : '0,20,40,60,80,100,120,140,160,180,200,220',
-        'data-minor-ticks' : "5",
+    const voltageGauge = document.createElement('canvas');
+    voltageGauge.id = 'dcuVoltageGauge';
+    Object.entries({
+        'data-type': 'radial-gauge', 'data-width': '250', 'data-height': '250', 'data-units': 'volt',
+        'data-title': 'dcu voltage', 'data-min-value': '0', 'data-max-value': '220',
+        'data-major-ticks': '0,20,40,60,80,100,120,140,160,180,200,220', 'data-minor-ticks': '5',
         'data-highlights': `[{ "from": 0, "to": 50, "color": "rgba(0,255,0,.15)" },
             { "from": 50, "to": 100, "color": "rgba(255,255,0,.15)" },
             { "from": 100, "to": 150, "color": "rgba(255,30,0,.25)" },
             { "from": 150, "to": 200, "color": "rgba(255,0,225,.25)" },
             { "from": 200, "to": 220, "color": "rgba(0,0,255,.25)" }]`,
-        'data-animation-duration' : '200',
-    }).appendTo(fieldset_measure);
+        'data-animation-duration': '200'
+    }).forEach(([name, value]) => voltageGauge.setAttribute(name, value));
+    fieldset_measure.appendChild(voltageGauge);
 
     cardColDiv.appendChild(fieldset);
     cardColDiv.appendChild(fieldset_measure);
@@ -183,9 +178,9 @@ function initializeSelect1(data, select1, platformIndex, dcuNumber, select2) {
 }
 
 function animation() {
-    var tcanvas = $('#dcuVoltageGauge');
+    const tcanvas = document.getElementById('dcuVoltageGauge');
     var newValue = Math.floor(Math.random() * 220);
-    tcanvas.attr('data-value', newValue);
+    tcanvas?.setAttribute('data-value', newValue);
 }
 
-setInterval("animation()",2000);
+setInterval(animation, 2000);

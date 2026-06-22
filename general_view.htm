@@ -42,7 +42,7 @@
                 <!-- Right: User avatar dropdown -->
                 <ul class="navbar-nav ms-auto">
                     <li class="nav-item dropdown">
-                        <a href="#" class="nav-link dropdown-toggle d-flex align-items-center" data-bs-toggle="dropdown" role="button" aria-expanded="false" style="padding: 0;">
+                        <a href="#" class="nav-link dropdown-toggle d-flex align-items-center" role="button" aria-expanded="false" style="padding: 0;">
                             <span class="me-1 d-none d-sm-inline"><input type='text' id="username" disabled='disabled' size='6px' style="border-style:none; background: transparent; font-weight:bold; text-align:right;" value=''/></span>
                             <span style="display: inline-flex; align-items: center; justify-content: center; width: 40px; height: 40px; background-color: #6c757d; border-radius: 50%; border: 2px solid #ddd;">
                                 <svg width="22" height="22" viewBox="0 0 24 24" fill="white"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v1.2c0 .66.54 1.2 1.2 1.2h16.8c.66 0 1.2-.54 1.2-1.2v-1.2c0-3.2-6.4-4.8-9.6-4.8z"/></svg>
@@ -87,24 +87,12 @@
                 </div>
             </div>
         </div>
-        <script src="bin/jquery.js"></script>
+        <script src="js/dom-utils.js"></script>
+        <script src="js/common-business.js"></script>
         <script src="bin/bootstrap.min.js"></script>
         <script src="bin/general_page.js"></script>
-        <script src="bin/jquery.localize.min.js"></script>
         <script src="bin/language_cookie.js"></script>
-
-        <script>
-            $(document).ready(function() {
-                $('#toggle-led').click(function() {
-                    const ledId = $(this).data('led-id');
-                    const ledStatus = $(this).data('led-status');
-                    updateLedStatusById(ledId, ledStatus);
-
-                    const newStatus = ledStatus === 'on' ? 'off' : 'on';
-                    $(this).data('led-status', newStatus);
-                });
-            });
-        </script>
-        <script>setInterval("getDevinfo()",3000); </script>
+        <script src="js/page-bootstrap.js"></script>
+        <script>setInterval(getDevinfo, 3000);</script>
     </body>
 </html>
