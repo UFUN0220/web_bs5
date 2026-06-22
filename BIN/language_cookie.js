@@ -16,7 +16,7 @@ async function localize_data() {
     if (!LANGUAGE_CODES.has(language)) return;
 
     try {
-        const basePath = window.location.pathname.includes('/PAGES/') ? '../' : '';
+        const basePath = window.location.pathname.includes('/PAGES/') && !document.querySelector('base') ? '../' : '';
         await CommonBusiness.localizeElements(language, basePath);
     } catch (error) {
         console.error('Unable to load localization data:', error);
