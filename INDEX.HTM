@@ -80,7 +80,7 @@
 
 function ClearUserID(){
 
- $fetchPost('login.cgi', {
+ fetchPost('login.cgi', {
                 "u" :"user",
                 "username" :"null",
                 "password" :"null",
@@ -108,11 +108,11 @@ function ClearUserID(){
 //if(!pass_chk(password)) return
 
 // ===== TEST BYPASS: skip login API, redirect directly =====
-            window.location.href = "general_view.htm";
+            window.location.href = "PAGES/general_view.htm";
             return;
 // ===== END TEST BYPASS =====
 
-        $fetchPost('login.cgi', {
+        fetchPost('login.cgi', {
                 "u" :"user",
                 "username" :username,
                 "password" : password,
@@ -125,7 +125,7 @@ function ClearUserID(){
           }
 
           globalData.setUserInfo(data["UserGroupID"],data["LoginActiveFlag"],data["AccessLevel"],data["AccessLevelTempMaint"],data["AccessLevelTempService"],data["AccessLevelTempEng"],data["WebNotActiveTime"],data["LoginMaxCounter"])
-          window.location.href = "general_view.htm";
+          window.location.href = "PAGES/general_view.htm";
 
          }
          else if (data["LoginCounter"] >= data["LoginMaxCounter"])

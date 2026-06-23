@@ -72,7 +72,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     try {
-        const data = await $fetchGet('data.json');
+        const data = await fetchGet('data.json');
         createStationView(data);
         for (let index = 0; index < data.platform_number; index += 1) createPlatformView(data, index);
         localize_data();

@@ -62,7 +62,7 @@ const CommonBusiness = (() => {
 
     /** Load and apply one data-localize dictionary to the current document. */
     async function localizeElements(language, basePath = '') {
-        const dictionary = await $fetchGet(`${basePath}LANG/text-${language}.json`);
+        const dictionary = await fetchGet(`${basePath}LANG/text-${language}.json`);
         document.querySelectorAll('[data-localize]').forEach(element => {
             const value = element.dataset.localize.split('.').reduce((current, key) => current && current[key], dictionary);
             if (value !== undefined && value !== null) element.textContent = value;

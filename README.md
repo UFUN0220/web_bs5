@@ -5,7 +5,7 @@
 
 本项目已完成从 **Bootstrap 3 + jQuery** 到 **Bootstrap 5 + 原生 ES6 / Fetch** 的前端升级。业务页面不再加载、调用或依赖 jQuery；DOM、事件、请求、分页、本地化与 Bootstrap 组件均采用标准浏览器 API 或项目公共库。
 
-> Bootstrap 5 仍作为 UI 框架保留，`gauge.min.js` 仅用于 DCU 仪表盘。这里的“无第三方依赖”指业务脚本不再依赖 jQuery、jQuery Form、jQuery Localize 等运行时插件。
+> Bootstrap 5 仍作为 UI 框架保留。DCU 仪表盘已切换为零第三方依赖的 canvas-gauges，并通过 `js/canvas-gauge-utils.js` 统一初始化、更新和销毁。
 
 ## 技术栈对比
 
@@ -14,10 +14,11 @@
 | UI 框架 | Bootstrap 3 | Bootstrap 5 |
 | DOM 操作 | jQuery 链式 API | 原生 DOM + `dom-utils.js` |
 | 事件 | `.ready()`、`.on()`、`.click()` | `DOMContentLoaded`、`addEventListener`、事件委托 |
-| HTTP | `$.ajax`、`$.getJSON` | `$fetchGet`、`$fetchPost`（Fetch + 超时 + HTTP 错误处理） |
+| HTTP | `$.ajax`、`$.getJSON` | Fetch / `fetchGet`、`fetchPost`（Fetch + 超时 + HTTP 错误处理） |
 | BS 组件 | jQuery 插件 / `data-*` 自动初始化 | `new bootstrap.Tab()`、`new bootstrap.Modal()`、`new bootstrap.Dropdown()` |
 | 多语言 | jQuery Localize | 原生 JSON 加载与 `data-localize` 应用 |
 | 公共业务逻辑 | 散落在页面脚本 | `common-business.js` |
+| DCU 仪表盘 | 旧 `gauge.min.js` 引入和 `data-*` 自动初始化 | `canvas-gauges.min.js` + `CanvasGaugeUtils` 显式生命周期 |
 
 ## 本次升级优化清单
 
@@ -62,10 +63,11 @@ WEB/
 │   ├── general_page.js        # 总览页私有逻辑
 │   ├── language_cookie.js     # 语言 Cookie 与初始化入口
 │   ├── session.js             # 登录会话能力
-│   └── gauge.min.js           # DCU 仪表盘资源
+│   └── canvas-gauges.min.js   # canvas-gauges DCU 仪表盘资源
 ├── js/
 │   ├── dom-utils.js           # DOM / Fetch 底层工具
 │   ├── common-business.js     # 跨页面业务工具
+│   ├── canvas-gauge-utils.js  # 仪表盘初始化、批量更新与销毁
 │   └── page-bootstrap.js      # 全局 BS5 Dropdown 生命周期管理
 ├── CSS/                       # Bootstrap 与项目样式
 ├── IMG/                       # 图片资源
@@ -90,10 +92,10 @@ WEB/
 
 ### `dom-utils.js`
 
-- `$dom(elementOrSelector)`：少量封装 DOM 操作；优先使用原生 `document.querySelector` / `createElement`。
-- `$fetchGet(url, options)`：JSON GET 请求。
-- `$fetchPost(url, body, options)`：JSON POST 请求。
-- `$modal(element)`、`$tabShow(element)`：仅作为原生 Bootstrap API 的辅助入口。
+- `domQuery(elementOrSelector)`：少量封装 DOM 操作；优先使用原生 `document.querySelector` / `createElement`。
+- `fetchGet(url, options)`：JSON GET 请求。
+- `fetchPost(url, body, options)`：JSON POST 请求。
+- `modalHelper(element)`、`tabShow(element)`：仅作为原生 Bootstrap API 的辅助入口。
 
 ### `common-business.js`
 
@@ -107,6 +109,88 @@ if (!CommonBusiness.validate(valid, 'Invalid input.', showError)) return;
 ```
 
 不要在页面脚本重复实现格式化、分页、状态映射、表格行/表头创建、通用校验或 `data-localize` 遍历逻辑。
+
+## DCU 仪表盘改造说明
+
+### 资源引入
+
+项目本地资源：
+
+```html
+<script src="bin/canvas-gauges.min.js"></script>
+<script src="js/canvas-gauge-utils.js"></script>
+```
+
+CDN 引入方式：
+
+```html
+<script src="https://cdn.jsdelivr.net/npm/canvas-gauges@2.1.7/gauge.min.js"></script>
+<script src="js/canvas-gauge-utils.js"></script>
+```
+
+### 替换前后对比
+
+替换前依赖旧文件名和 `data-*` 属性：
+
+```html
+<script src="bin/gauge.min.js"></script>
+```
+
+```js
+const voltageGauge = document.createElement('canvas');
+voltageGauge.id = 'dcuVoltageGauge';
+voltageGauge.setAttribute('data-type', 'radial-gauge');
+voltageGauge.setAttribute('data-width', '250');
+voltageGauge.setAttribute('data-height', '250');
+voltageGauge.setAttribute('data-units', 'volt');
+voltageGauge.setAttribute('data-min-value', '0');
+voltageGauge.setAttribute('data-max-value', '220');
+tcanvas?.setAttribute('data-value', newValue);
+```
+
+替换后复用原 `canvas#dcuVoltageGauge` 容器，只把配置从 DOM 属性迁移为显式 JS 配置：
+
+```js
+const voltageGauge = document.createElement('canvas');
+voltageGauge.id = 'dcuVoltageGauge';
+fieldset_measure.appendChild(voltageGauge);
+CanvasGaugeUtils.createRadialGauge(voltageGauge, DCU_VOLTAGE_GAUGE_OPTIONS);
+CanvasGaugeUtils.updateGauge('dcuVoltageGauge', newValue);
+```
+
+当前 DCU 电压仪表盘已对齐原配置：
+
+- 尺寸：250 × 250。
+- 单位：`volt`。
+- 标题：`dcu voltage`。
+- 量程：0 到 220。
+- 主刻度：0、20、40、60、80、100、120、140、160、180、200、220。
+- 次刻度：5。
+- 警戒色分区：0–50 绿、50–100 黄、100–150 红、150–200 紫、200–220 蓝，透明度保持原值。
+- 指针动画：`animationDuration: 200`，实时刷新仍为每 2 秒更新一次。
+
+### `CanvasGaugeUtils` API
+
+```js
+CanvasGaugeUtils.createRadialGauge(canvasOrId, options);
+CanvasGaugeUtils.createLinearGauge(canvasOrId, options);
+CanvasGaugeUtils.createGauges([
+  { target: 'dcuVoltageGauge', options: DCU_VOLTAGE_GAUGE_OPTIONS }
+]);
+CanvasGaugeUtils.updateGauge('dcuVoltageGauge', 120);
+CanvasGaugeUtils.updateGauges({ dcuVoltageGauge: 120 });
+CanvasGaugeUtils.destroyGauge('dcuVoltageGauge');
+CanvasGaugeUtils.destroyAll();
+```
+
+## jQuery / 旧仪表盘清理检查清单
+
+- 页面不再引入 `jquery*.js`、`jquery.form*.js`、`jquery.localize*.js`。
+- 页面不再引入旧 `bin/gauge.min.js`，统一使用 `bin/canvas-gauges.min.js`。
+- DCU 仪表盘不再依赖 `data-type="radial-gauge"` 自动初始化，统一使用 `CanvasGaugeUtils`。
+- 业务脚本不出现 `$()`、`$.ajax`、`$.getJSON`、`jQuery`、`window.$`、`window.jQuery`，也不保留以 `$` 开头的项目自有别名。
+- Bootstrap 组件不使用 `.modal('show')`、`.tab('show')` 等 jQuery 插件写法。
+- `dom-utils.js` 仅导出 `domQuery`、`fetchGet`、`fetchPost` 等非 `$` 命名接口。
 
 ## 页面开发规范
 
@@ -170,7 +254,7 @@ window.addEventListener('beforeunload', () => {
 后续迁移页面按以下步骤执行：
 
 1. 先识别页面私有逻辑与可下沉的公共业务函数。
-2. 将请求替换为 `$fetchGet` 或 `$fetchPost`，保留接口契约与错误处理。
+2. 将请求替换为 `fetchGet` 或 `fetchPost`，保留接口契约与错误处理。
 3. 将动态 DOM 改为原生 API，引用 `CommonBusiness` 中的公共能力。
 4. 将 BS5 组件改为显式实例化，并在重建/卸载时释放。
 5. 使用主题 token 替换新增硬编码视觉值。
@@ -179,8 +263,15 @@ window.addEventListener('beforeunload', () => {
 ## 验收检查
 
 ```bash
-# 页面业务代码中不应存在 jQuery 调用
-rg -n '\$\(|\$\.ajax|\$\.getJSON|jQuery' --glob '!BIN/bootstrap.min.js' --glob '!BIN/gauge.min.js' .
+# 页面业务代码中不应存在真实 jQuery 调用或以 $ 开头的项目别名
+rg -n '\$[A-Za-z_][A-Za-z0-9_]*|\$\(|\$\.|jQuery|jquery|window\.\$|window\.jQuery' \
+  --glob '*.js' --glob '*.JS' --glob '*.htm' --glob '*.HTM' \
+  --glob '!BIN/bootstrap.min.js' --glob '!BIN/canvas-gauges.min.js' --glob '!README.md' .
+
+# 页面不应继续引用旧仪表盘文件
+rg -n '<script[^>]*(jquery|gauge\.min\.js)|gauge\.min\.js|data-type=["'"'"']radial-gauge|data-type.*radial-gauge' \
+  --glob '*.js' --glob '*.JS' --glob '*.htm' --glob '*.HTM' \
+  --glob '!BIN/canvas-gauges.min.js' --glob '!README.md' .
 
 # 检查页面私有脚本语法
 node --check BIN/alarm_data.js
@@ -227,6 +318,3 @@ npm run build # 生产构建
 
 #### 注意事项
 - 基于BS3核心架构，未升级至BS4/5，老项目低成本迁移；新功能按需开启，不影响原有逻辑。
-
-
-

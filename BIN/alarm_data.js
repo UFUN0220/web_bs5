@@ -21,7 +21,7 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     const appendChildren = (parent, ...children) => parent.append(...children.filter(Boolean));
-    const clearElement = (element) => $dom(element).empty();
+    const clearElement = (element) => domQuery(element).empty();
     const getActiveLink = (container) => container.querySelector('li.active a, a.nav-link.active');
 
     const mainDiv = document.querySelector('.main');
@@ -382,8 +382,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     startTime,
                     endTime
                 });
-                const responseData = await $fetchGet(requestUrl, { headers: { 'Content-Type': 'application/json; charset=utf-8' } });
-                const jsonData = await $fetchGet('data.json');
+                const responseData = await fetchGet(requestUrl, { headers: { 'Content-Type': 'application/json; charset=utf-8' } });
+                const jsonData = await fetchGet('data.json');
                 renderResults(responseData, jsonData, alarmType);
             } catch (error) {
                 showError('Communication Error with backend');
@@ -443,7 +443,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     createErrorModal();
-    $fetchGet('data.json').then(initializeTabs).catch(() => showError('Communication Error with backend'));
+    fetchGet('data.json').then(initializeTabs).catch(() => showError('Communication Error with backend'));
 
     window.addEventListener('beforeunload', () => {
         tabEventController?.abort();

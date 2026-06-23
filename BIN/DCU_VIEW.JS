@@ -22,7 +22,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const dcuNumber = urlParams.get('dcu_number');
     
     // Fetch platform_number and platform doors from data.json
-    $fetchGet('data.json')
+    fetchJson('data.json')
         .then(data => {
             initializeSelect1(data, colDiv2.select, platformIndex, dcuNumber, colDiv3.select);
         })
@@ -51,9 +51,10 @@ document.addEventListener('DOMContentLoaded', () => {
     fieldset_measure.style.padding = '30px';
     fieldset_measure.style.marginTop = '30px';
     fieldset_measure.style.width = '100%'; // Set width to 100%
+    let ledRowDiv = null;
     for (let i = 0; i < 32; i++) {
         if (i % 3 === 0) {
-            var ledRowDiv = createRowDiv();
+            ledRowDiv = createRowDiv();
             fieldset.appendChild(ledRowDiv);
         }
         const containerDiv = createColDiv('col-md-4'); // Container for name and LED
@@ -78,18 +79,8 @@ document.addEventListener('DOMContentLoaded', () => {
     
     const voltageGauge = document.createElement('canvas');
     voltageGauge.id = 'dcuVoltageGauge';
-    Object.entries({
-        'data-type': 'radial-gauge', 'data-width': '250', 'data-height': '250', 'data-units': 'volt',
-        'data-title': 'dcu voltage', 'data-min-value': '0', 'data-max-value': '220',
-        'data-major-ticks': '0,20,40,60,80,100,120,140,160,180,200,220', 'data-minor-ticks': '5',
-        'data-highlights': `[{ "from": 0, "to": 50, "color": "rgba(0,255,0,.15)" },
-            { "from": 50, "to": 100, "color": "rgba(255,255,0,.15)" },
-            { "from": 100, "to": 150, "color": "rgba(255,30,0,.25)" },
-            { "from": 150, "to": 200, "color": "rgba(255,0,225,.25)" },
-            { "from": 200, "to": 220, "color": "rgba(0,0,255,.25)" }]`,
-        'data-animation-duration': '200'
-    }).forEach(([name, value]) => voltageGauge.setAttribute(name, value));
     fieldset_measure.appendChild(voltageGauge);
+    CanvasGaugeUtils.createRadialGauge(voltageGauge, DCU_VOLTAGE_GAUGE_OPTIONS);
 
     cardColDiv.appendChild(fieldset);
     cardColDiv.appendChild(fieldset_measure);
@@ -97,6 +88,37 @@ document.addEventListener('DOMContentLoaded', () => {
     cardRowDiv.appendChild(cardColDiv);
     mainDiv.appendChild(cardRowDiv);
 });
+
+const DCU_VOLTAGE_GAUGE_OPTIONS = Object.freeze({
+    width: 250,
+    height: 250,
+    units: 'volt',
+    title: 'dcu voltage',
+    minValue: 0,
+    maxValue: 220,
+    majorTicks: ['0', '20', '40', '60', '80', '100', '120', '140', '160', '180', '200', '220'],
+    minorTicks: 5,
+    highlights: [
+        { from: 0, to: 50, color: 'rgba(0,255,0,.15)' },
+        { from: 50, to: 100, color: 'rgba(255,255,0,.15)' },
+        { from: 100, to: 150, color: 'rgba(255,30,0,.25)' },
+        { from: 150, to: 200, color: 'rgba(255,0,225,.25)' },
+        { from: 200, to: 220, color: 'rgba(0,0,255,.25)' }
+    ],
+    animationDuration: 200
+});
+
+async function fetchJson(url, options = {}) {
+    const response = await fetch(url, {
+        method: 'GET',
+        headers: { Accept: 'application/json', ...(options.headers || {}) },
+        signal: options.signal
+    });
+    if (!response.ok) {
+        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
+    return response.json();
+}
 
 function createRowDiv() {
     const rowDiv = document.createElement('div');
@@ -178,9 +200,8 @@ function initializeSelect1(data, select1, platformIndex, dcuNumber, select2) {
 }
 
 function animation() {
-    const tcanvas = document.getElementById('dcuVoltageGauge');
-    var newValue = Math.floor(Math.random() * 220);
-    tcanvas?.setAttribute('data-value', newValue);
+    const newValue = Math.floor(Math.random() * 220);
+    CanvasGaugeUtils.updateGauge('dcuVoltageGauge', newValue);
 }
 
 setInterval(animation, 2000);

@@ -1,16 +1,15 @@
 /**
  * dom-utils.js — Native DOM Utility Library
  * ==========================================
- * Zero-dependency jQuery replacement for Wabtec MMS Web Tools.
- * Covers all jQuery patterns used in this project:
- *   $(), .on(), .append(), .css(), .addClass(), .removeClass(),
- *   .prop(), .val(), .attr(), .find(), .ajax(), $.getJSON, etc.
+ * Zero-dependency DOM utility layer for Wabtec MMS Web Tools.
+ * Covers legacy DOM helper patterns used in this project:
+ *   selector wrapping, events, append, css, class, prop, val, attr, find, and JSON requests.
  *
  * Design: DomQuery wraps Element[] and provides chainable methods.
- *   - $dom(selector)      → DomQuery (document scope)
- *   - $dom(el)            → DomQuery (wrap existing element)
- *   - $domCreate('<div>') → DomQuery (create from HTML)
- *   - $domAll(selector)   → DomQuery (always array)
+ *   - domQuery(selector)      → DomQuery (document scope)
+ *   - domQuery(el)            → DomQuery (wrap existing element)
+ *   - domCreate('<div>')      → DomQuery (create from HTML)
+ *   - domAll(selector)        → DomQuery (always array)
  *
  * @version 1.0.0
  */
@@ -60,7 +59,7 @@ class DomQuery {
   //  Read-only properties
   // ==================================================================
 
-  /** Number of matched elements (mimics jQuery .length) */
+  /** Number of matched elements */
   get length() {
     return this.elements.length;
   }
@@ -451,7 +450,7 @@ class DomQuery {
 
   /**
    * .on(event, [selector], handler) — add event listener
-   * With selector: delegated event (mimics jQuery .on('click', 'sel', fn))
+   * With selector: delegated event
    * Without selector: direct binding
    * @returns {DomQuery}
    */
@@ -629,40 +628,40 @@ class DomQuery {
 // ====================================================================
 
 /**
- * $dom(selector|element|html)
- * Core jQuery $() replacement.
+ * domQuery(selector|element|html)
+ * Core DOM selector wrapper.
  * @param {string|Element|NodeList} input
  * @param {Element|Document} [parent=document]
  * @returns {DomQuery}
  */
-function $dom(input, parent = document) {
+function domQuery(input, parent = document) {
   return new DomQuery(input, parent);
 }
 
 /**
- * $domCreate('<div class="x">') — explicit HTML creation
+ * domCreate('<div class="x">') — explicit HTML creation
  * @param {string} html
  * @returns {DomQuery}
  */
-function $domCreate(html) {
+function domCreate(html) {
   return new DomQuery(html);
 }
 
 /**
- * $domAll(selector) — always returns a collection (even for single match)
+ * domAll(selector) — always returns a collection (even for single match)
  * @param {string} selector
  * @param {Element|Document} [parent=document]
  * @returns {DomQuery}
  */
-function $domAll(selector, parent = document) {
+function domAll(selector, parent = document) {
   return new DomQuery(selector, parent);
 }
 
 /**
- * $domReady(fn) — $(document).ready() replacement
+ * domReady(fn) — run after DOMContentLoaded.
  * @param {Function} fn
  */
-function $domReady(fn) {
+function domReady(fn) {
   if (document.readyState === 'loading') {
     document.addEventListener('DOMContentLoaded', fn);
   } else {
@@ -675,14 +674,14 @@ function $domReady(fn) {
 // ====================================================================
 
 /**
- * $fetchGet(url) — $.getJSON() / $.ajax GET replacement
+ * fetchGet(url) — JSON GET wrapper.
  * @param {string} url
  * @param {object} [options]
  * @param {number} [options.timeout=10000] — timeout in ms
  * @param {object} [options.headers] — extra headers
  * @returns {Promise<any>}
  */
-function $fetchGet(url, options = {}) {
+function fetchGet(url, options = {}) {
   const { timeout = 10000, headers = {} } = options;
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeout);
@@ -700,23 +699,23 @@ function $fetchGet(url, options = {}) {
     .catch(err => {
       clearTimeout(timer);
       if (err.name === 'AbortError') {
-        console.error(`[$fetchGet] Timeout: ${url}`);
+        console.error(`[fetchGet] Timeout: ${url}`);
         throw new Error(`Request timeout: ${url}`);
       }
-      console.error(`[$fetchGet] Error: ${url}`, err);
+      console.error(`[fetchGet] Error: ${url}`, err);
       throw err;
     });
 }
 
 /**
- * $fetchPost(url, body) — $.ajax POST replacement
+ * fetchPost(url, body) — JSON POST wrapper.
  * @param {string} url
  * @param {object} body — JSON body
  * @param {object} [options]
  * @param {number} [options.timeout=15000]
  * @returns {Promise<any>}
  */
-function $fetchPost(url, body, options = {}) {
+function fetchPost(url, body, options = {}) {
   const { timeout = 15000, headers = {} } = options;
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), timeout);
@@ -735,10 +734,10 @@ function $fetchPost(url, body, options = {}) {
     .catch(err => {
       clearTimeout(timer);
       if (err.name === 'AbortError') {
-        console.error(`[$fetchPost] Timeout: ${url}`);
+        console.error(`[fetchPost] Timeout: ${url}`);
         throw new Error(`Request timeout: ${url}`);
       }
-      console.error(`[$fetchPost] Error: ${url}`, err);
+      console.error(`[fetchPost] Error: ${url}`, err);
       throw err;
     });
 }
@@ -748,11 +747,11 @@ function $fetchPost(url, body, options = {}) {
 // ====================================================================
 
 /**
- * $modal(selector) — get or create BS5 Modal instance
+ * modalHelper(selector) — get or create BS5 Modal instance
  * @param {string|Element} el
  * @returns {bootstrap.Modal|null}
  */
-function $modal(el) {
+function modalHelper(el) {
   const element = typeof el === 'string' ? document.querySelector(el) : el;
   if (!element) return null;
   return bootstrap.Modal.getOrCreateInstance(element);
@@ -763,11 +762,11 @@ function $modal(el) {
 // ====================================================================
 
 /**
- * $tabShow(el) — programmatically show a BS5 tab
- * Mimics jQuery .tab('show')
+ * tabShow(el) — programmatically show a BS5 tab
+ * Programmatic Bootstrap Tab show helper.
  * @param {Element} el — the tab trigger link
  */
-function $tabShow(el) {
+function tabShow(el) {
   if (!el) return;
   const tabInstance = bootstrap.Tab.getOrCreateInstance(el);
   tabInstance.show();
@@ -779,12 +778,22 @@ function $tabShow(el) {
 
 if (typeof window !== 'undefined') {
   window.DomQuery = DomQuery;
-  window.$dom = $dom;
-  window.$domCreate = $domCreate;
-  window.$domAll = $domAll;
-  window.$domReady = $domReady;
-  window.$fetchGet = $fetchGet;
-  window.$fetchPost = $fetchPost;
-  window.$modal = $modal;
-  window.$tabShow = $tabShow;
+  window.domQuery = domQuery;
+  window.domCreate = domCreate;
+  window.domAll = domAll;
+  window.domReady = domReady;
+  window.fetchGet = fetchGet;
+  window.fetchPost = fetchPost;
+  window.modalHelper = modalHelper;
+  window.tabShow = tabShow;
+  window.DomUtils = Object.freeze({
+    domAll,
+    domCreate,
+    domQuery,
+    domReady,
+    fetchGet,
+    fetchPost,
+    modalHelper,
+    tabShow
+  });
 }
