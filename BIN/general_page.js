@@ -52,7 +52,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const doorRow = createElement('div', { className: 'row', style: { marginTop: '20px', marginLeft: '0px' } });
         data[`platform_${platformNumber}_doors`].forEach(door => {
             const container = createElement('div', { className: 'door-item col-md-1' });
-            const link = createElement('a', { attributes: { href: `dcu_view.htm?platform_index=${platformNumber}&dcu_number=${door.dcu_number}` } });
+            const link = createElement('a', { attributes: { href: `DCU_VIEW.HTM?platform_index=${platformNumber}&dcu_number=${door.dcu_number}` } });
             const name = createElement('div', { className: 'door-name', text: door.name, style: { fontSize: '9.5px' } });
             if (door.type === 'psd') {
                 name.dataset.localize = `Door_Name.PSD.PSD_${door.door_number}`;

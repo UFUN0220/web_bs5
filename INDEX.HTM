@@ -9,10 +9,10 @@
     <title>Wabtec DLCC2 Maintenance Tools</title>
 
     <!-- Bootstrap 5 core CSS -->
-    <link href="css/bootstrap.min.css" rel="stylesheet">
+    <link href="CSS/bootstrap.min.css" rel="stylesheet">
 
     <!-- Custom styles for this template -->
-    <link href="css/dashboard.css" rel="stylesheet">
+    <link href="CSS/dashboard.css" rel="stylesheet">
 
     <style>
      body { padding-top: 40px;  padding-bottom: 40px;  background-color: #eee;}
@@ -25,15 +25,15 @@
       <div class="container">
 
       <form class="form-signin">
-      <img border="0" src="img/faiveley.gif" align="center-left" width="151" height="45">
+      <img src="IMG/FAIVELEY.GIF" alt="Faiveley Transport" width="151" height="45">
       <div class="mb-3"></div>
-        <label data-localize="Login.UserName" >User Name:</label>
-        <input type="name" id="inputName" class="form-control" placeholder="Enter your user name here..." onpropertychange ='user_chk(this);'required  autofocus>
-        <label data-localize="Login.Password" >Password:</label>
-        <input type="password" id="inputPassword" class="form-control" placeholder="Enter your password here..."  onkeyup='pass_chk(this);' required  autofocus >
+        <label for="inputName" data-localize="Login.UserName">User Name:</label>
+        <input type="text" id="inputName" class="form-control" placeholder="Enter your user name here..." onpropertychange='user_chk(this);' required autofocus>
+        <label for="inputPassword" data-localize="Login.Password">Password:</label>
+        <input type="password" id="inputPassword" class="form-control" placeholder="Enter your password here..." onkeyup='pass_chk(this);' required>
         <div class="msg" align="center-left" ></div>
         <div class="mb-3"></div>
-        <label data-localize="Login.LanguageID"> Language Select:</label>
+        <label for="ddlSomoveLanguage" data-localize="Login.LanguageID"> Language Select:</label>
         <select id="ddlSomoveLanguage" class="pteSelectInput" onchange="chgLang();">
          <option value="e">Select</option>
           <option value="en">English</option>
@@ -58,9 +58,9 @@
     <!-- Bootstrap 5 core JavaScript
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
-    <script src="bin/language_cookie.js"></script>
-    <script src="bin/bootstrap.min.js"></script>
-    <script src="bin/session.js"></script>
+    <script src="BIN/language_cookie.js"></script>
+    <script src="BIN/bootstrap.min.js"></script>
+    <script src="BIN/session.js"></script>
 
 
 
@@ -140,7 +140,7 @@ function ClearUserID(){
         else
         {
             alert("username or password error");
-            window.location.href= "index.htm";
+            window.location.href= "INDEX.HTM";
 
         }
 

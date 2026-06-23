@@ -43,9 +43,56 @@ body {
   letter-spacing: -0.3px;
 }
 
-/*
- * Top navigation - blue separator line is set via inline style border-bottom on nav
- */
+/* Shared Bootstrap 5 application shell */
+.mms-navbar {
+  background-color: var(--mms-navbar-background);
+  border-bottom: 3px solid var(--mms-navbar-border);
+}
+
+.mms-system-title {
+  font-size: 20pt;
+  font-weight: bold;
+  color: var(--mms-title-color);
+}
+
+.mms-status-field,
+.mms-username-field {
+  border: 0;
+  background: transparent;
+}
+
+.mms-username-field {
+  font-weight: bold;
+  text-align: right;
+}
+
+.mms-user-toggle {
+  padding: 0;
+}
+
+.mms-user-avatar {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  background-color: var(--bs-secondary);
+  border: 2px solid var(--bs-border-color);
+  border-radius: 50%;
+}
+
+.mms-mobile-nav .nav-sidebar {
+  margin-bottom: var(--mms-space-md);
+}
+
+.mms-mobile-nav .sidebar-link {
+  padding: var(--mms-space-sm) var(--mms-space-md);
+}
+
+.mms-mobile-nav .active > .sidebar-link {
+  color: var(--bs-white);
+  background-color: var(--mms-navbar-border);
+}
 
 /*
  * Sidebar - pure white background like BS3 original

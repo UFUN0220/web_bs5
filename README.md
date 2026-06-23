@@ -3,7 +3,7 @@
 # Wabtec MMS Web — BS5 原生化升级说明
 ## v1.0
 
-本项目已完成从 **Bootstrap 3 + jQuery** 到 **Bootstrap 5 + 原生 ES6 / Fetch** 的前端升级。业务页面不再加载、调用或依赖 jQuery；DOM、事件、请求、分页、本地化与 Bootstrap 组件均采用标准浏览器 API 或项目公共库。
+本项目已完成从 **Bootstrap 3 + jQuery** 到 **Bootstrap 5.3.3 + 原生 ES6 / Fetch** 的前端升级。Bootstrap 的 CSS 与 bundle 均为本地固定版本：`CSS/bootstrap.min.css` 和 `BIN/bootstrap.min.js`。业务页面不再加载、调用或依赖 jQuery；DOM、事件、请求、分页、本地化与 Bootstrap 组件均采用标准浏览器 API 或项目公共库。
 
 > Bootstrap 5 仍作为 UI 框架保留。DCU 仪表盘已切换为零第三方依赖的 canvas-gauges，并通过 `js/canvas-gauge-utils.js` 统一初始化、更新和销毁。
 
@@ -15,7 +15,7 @@
 | DOM 操作 | jQuery 链式 API | 原生 DOM + `dom-utils.js` |
 | 事件 | `.ready()`、`.on()`、`.click()` | `DOMContentLoaded`、`addEventListener`、事件委托 |
 | HTTP | `$.ajax`、`$.getJSON` | Fetch / `fetchGet`、`fetchPost`（Fetch + 超时 + HTTP 错误处理） |
-| BS 组件 | jQuery 插件 / `data-*` 自动初始化 | `new bootstrap.Tab()`、`new bootstrap.Modal()`、`new bootstrap.Dropdown()` |
+| BS 组件 | jQuery 插件 / `data-*` 自动初始化 | BS5 `data-bs-*` 声明式组件和原生 `bootstrap.Tab`、`bootstrap.Modal` API |
 | 多语言 | jQuery Localize | 原生 JSON 加载与 `data-localize` 应用 |
 | 公共业务逻辑 | 散落在页面脚本 | `common-business.js` |
 | DCU 仪表盘 | 旧 `gauge.min.js` 引入和 `data-*` 自动初始化 | `canvas-gauges.min.js` + `CanvasGaugeUtils` 显式生命周期 |
@@ -24,8 +24,8 @@
 
 1. **属性与组件迁移**
    - BS3 栅格、导航、表单、按钮与标签页类名已适配 BS5。
-   - Tab、Modal、Dropdown 不再依赖 `data-bs-toggle` / `data-bs-dismiss` 自动初始化。
-   - 所有实例由页面脚本显式创建，在页面卸载或内容重建时调用 `dispose()`。
+   - 顶部菜单与移动导航使用 BS5 `data-bs-toggle` / `data-bs-dismiss`。
+   - 动态创建的 Tab、Modal 由页面脚本使用原生 Bootstrap API 管理。
 
 2. **UI 规范化**
    - 保留顶部标题、侧边栏、`fieldset + legend`、Tab、响应式栅格和既有多语言属性。
@@ -53,10 +53,11 @@
 ```text
 WEB/
 ├── INDEX.HTM                 # 登录页
-├── general_view.htm          # 总览页
-├── alarm_data.htm            # 告警/事件试点模板
 ├── DCU_VIEW.HTM              # DCU 页面
-├── PAGES/                    # 其他业务页面
+├── PAGES/                    # 总览、告警和其他业务页面
+│   ├── general_view.htm      # 总览页
+│   ├── alarm_data.htm        # 告警/事件试点模板
+│   └── Help.htm               # 帮助占位页
 ├── BIN/
 │   ├── bootstrap.min.js       # Bootstrap 5 bundle
 │   ├── alarm_data.js          # 告警页私有逻辑
@@ -68,7 +69,7 @@ WEB/
 │   ├── dom-utils.js           # DOM / Fetch 底层工具
 │   ├── common-business.js     # 跨页面业务工具
 │   ├── canvas-gauge-utils.js  # 仪表盘初始化、批量更新与销毁
-│   └── page-bootstrap.js      # 全局 BS5 Dropdown 生命周期管理
+│   └── app-shell.js           # 公共导航、侧栏与移动 Offcanvas
 ├── CSS/                       # Bootstrap 与项目样式
 ├── IMG/                       # 图片资源
 ├── LANG/                      # text-en/fr/zh.json
@@ -83,12 +84,12 @@ WEB/
 <script src="js/dom-utils.js"></script>
 <script src="js/common-business.js"></script>
 <script src="bin/bootstrap.min.js"></script>
-<script src="bin/language_cookie.js"></script>
-<script src="js/page-bootstrap.js"></script>
+<script src="js/app-shell.js"></script>
 <script src="bin/page-xxx.js"></script>
+<script src="bin/language_cookie.js"></script>
 ```
 
-`PAGES/` 下页面使用 `../js/`、`../bin/`、`../CSS/`、`../IMG/` 相对路径。不得混用页面层级路径。
+`PAGES/` 下所有页面使用 `<base href="../">`，因此脚本、样式和导航均从项目根目录解析。页面导航统一由 `app-shell.js` 维护；不要在单独页面复制导航 HTML 或混用相对路径。
 
 ### `dom-utils.js`
 
@@ -243,7 +244,7 @@ window.addEventListener('beforeunload', () => {
 
 1. 使用支持静态文件与 CGI 接口的 Web 服务器部署项目根目录。
 2. 保持目录大小写与部署环境一致；Linux 环境严格区分 `BIN`、`CSS`、`IMG`、`LANG`。
-3. 根目录页面使用 `js/`、`BIN/`、`CSS/`、`IMG/`；`PAGES/` 页面使用 `../` 前缀。
+3. 根目录页面直接使用 `js/`、`BIN/`、`CSS/`、`IMG/`；`PAGES/` 页面保留 `<base href="../">`。
 4. `data.json` 用于页面模拟数据；后端接口地址、参数名和数组序列化格式不得在前端重构中改变。
 5. 部署前检查浏览器控制台、网络请求状态、语言包路径和 Bootstrap 实例销毁逻辑。
 
